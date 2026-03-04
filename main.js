@@ -7,17 +7,23 @@ let unitSys = 'metric';
 let liftMode = 'horizontal';
 let SF = 1.5;
 let useAcc = false;
+let sCupMode = 'dia';
+let sUseAcc = true;
 let convDir = 'mi';
+let flMode = 'flow';
+let eHdDir = 'm2s';
+let eHdiaType = 'vac';
 
 // ============================================================
 // TRANSLATIONS
 // ============================================================
 const T = {
   ko: {
-    'hdr-sub': '진공 계산기 v3.0',
+    'hdr-sub': '진공 계산기 v4.0',
     'tab-tf': '흡착력 계산', 'tab-tc': '컵 선정', 'tab-tfl': '유량 계산', 'tab-tv': '단위 변환', 'tab-tr': '참고 데이터',
     't1h': '이론 흡착력 계산', 't1s': '흡착컵의 이론 흡착력을 계산하고 안전 여부를 검토합니다.',
-    't2h': '흡착컵 사이즈 역산', 't2s': '워크피스 무게와 조건을 입력하면 필요한 흡착컵 직경을 역산합니다.',
+    't2h': '흡착컵 수량 및 사이즈 예측', 't2s': '워크피스 하중에 필요한 수량과 직경을 계산합니다.',
+    'tbtn-tc-dia': '직경 계산', 'tbtn-tc-qty': '수량 계산',
     't3h': '진공 유량 및 이젝터 선정', 't3s': '진공 이젝터의 필요 유량과 흡착 응답 시간을 계산합니다.',
     't4h': '단위 변환기', 't4s': '진공 자동화 업무에 필요한 메트릭 ↔ 임페리얼 단위를 빠르게 변환합니다.',
     't5h': '참고 데이터 & 수식',
@@ -62,7 +68,9 @@ const T = {
     'l-smode': '리프팅 방식', 'so-h': '수평 흡착 (수직 하중)', 'so-v': '수직 흡착 (측면 이동)',
     'l-smu': '마찰계수 μ', 'smo1': '0.1 — 기름 묻은 금속', 'smo2': '0.5 — 금속/유리/석재', 'smo3': '0.7 — 고무 표면',
     'l-ssf': '안전계수 S', 'ssf1': '1.5 — 매끄러운 표면', 'ssf2': '2.0 — 일반 조건', 'ssf3': '2.5 — 다공성/거친 표면', 'ssf4': '4.0 — 수직+이동',
-    'rl-sdia': '최소 필요 직경 (컵 1개당)', 'rl-sf2': '필요 흡착력', 'rl-sa': '컵당 부담 면적',
+    'l-scdia': '흡착컵 직경 (mm)', 'l-sacc': '가속도 포함 여부', 'tp-sacc': '※ 9.81 m/s² = 1G', 'l-sav': '가속도 a (m/s²)',
+    'rl-sdia': '최소 필요 직경 (컵 1개당)', 'rl-sf2': '필요 흡착력 (F)', 'rl-sa': '요구 총 면적 (A)',
+    'rl-sqty': '최소 필요 수량', 'ru-sqty': '개 (pcs)',
     'th-d': '직경', 'th-f': '이론 흡착력', 'th-m': '안전 여유', 'th-r': '적합성', 's-tbl-ph': '계산 후 표시됩니다',
     'l-fv': '배관 내부 용적 V (cm³)', 'tp-fv': '흡착컵 + 배관 내부 용적의 합계',
     'l-fvac': '목표 진공압력', 'l-ft': '목표 응답 시간 t (sec)',
@@ -122,12 +130,48 @@ const T = {
     'cbm-lbl-item': '품목', 'cbm-lbl-name': '품목명', 'cbm-lbl-l': '가로 L', 'cbm-lbl-w': '세로 W', 'cbm-lbl-h': '높이 H', 'cbm-lbl-qty': '수량', 'cbm-lbl-wt': '중량 (kg/박스)', 'cbm-lbl-del': '삭제',
     'tt5n': 'M (미터)', 'cbm-chw-o1': '6,000 (IATA 국제선)', 'cbm-chw-o2': '5,000 (일반 항공)', 'cbm-chw-o3': '4,000 (특급 항공)',
     'cbm-ph-name': '예: VMECA 진공컵 박스',
+    // Engineering Tab
+    'tab-teng': '엔지니어링',
+    't7h': '엔지니어링 툴', 't7s': '진공 시스템 설계에 필요한 부가적인 엔지니어링 계산을 수행합니다.',
+    'eh-hd': '① 배관 분배 (Hose Distribution)', 'el-hd-main': '메인 배관 내경 (mm)', 'el-hd-sub': '서브 배관 내경 (mm)',
+    'er-hd-lbl': '권장 서브 배관 최대 수량', 'etp-hd': '※ 단면적 비례 기준으로 분할 시 부족함 없는 호스 수량',
+    'eh-of': '② 오리피스 유량 (Orifice Flow)', 'el-of-dia': '오리피스 직경 (mm)', 'el-of-vac': '진공 압력 (-kPa)',
+    'er-of-lbl': '예상 누설 유량', 'etp-of': '※ 배관 내 진공도가 유지될 때 공기가 유입되는 대략적 유량',
+    'eh-hdia': '③ 권장 배관 직경 (Hose Diameter)', 'el-hdia-flow': '유량 (L/min)', 'el-hdia-len': '배관 길이 (m)',
+    'el-hdia-drop': '허용 압력 강하 (kPa)', 'er-hdia-lbl': '최소 권장 내경', 'etp-hdia': '※ 배관 마찰 저항 (Darcy-Weisbach / 층류 근사치 기반 경험공식) 적용',
+    'eh-alt': '④ 고도별 대기압 (Altitude Pressure)', 'el-alt-h': '해발 고도 (m)', 'er-alt-lbl': '대기압 (절대압)',
+    'etp-alt': '※ 멕시코시티(2,240m) 등 고지대에서 이젝터의 최대 진공 도달 한계치는 이 대기압을 넘을 수 없음. 우천/저기압 시 일반 대기압에서 약 5% 추가 감소.',
+    'l-fl-mode': '계산 모드', 'fl-m-flow': '필요 유량 계산', 'fl-m-time': '도달 시간 계산', 'l-fe': '펌프/이젝터 도달 유량 (L/min)',
+    'el-hd-dir': '계산 방향', 'btn-hd-m2s': 'Main → Sub', 'btn-hd-s2m': 'Sub → Main', 'el-hd-qty': '서브 배관 수량 (개)',
+    'er-hd-lbl2': '최소 필요 메인 내경', 'el-hdia-type': '배관 종류', 'btn-hdia-vac': '진공 (Vacuum)', 'btn-hdia-air': '압축공기 (Air)',
+    'el-hdia-pwork': '작업 압력 (Gauge bar)', 'er-alt-wv': '저기압 시 최대 진공 한계',
+    // ROI Tab
+    'tab-troi': 'ROI 계산',
+    't8h': '투자 회수 (ROI) 계산기', 't8s': '핸들링 장비 및 자동화 시스템 도입에 따른 예상 투자 회수 기간을 계산합니다.',
+    'tbtn-roi-m': '수동 핸들링 장비', 'tbtn-roi-a': '자동화 시스템',
+    'rh-m1': '① 작업 정보 입력', 'rh-m2': '계산 결과',
+    'rl-m-days': '연간 근무일 (일/년)', 'rl-m-hours': '일일 근무 시간 (시간/일)',
+    'rl-m-cost': '시간당 인건비 (₩/시간)', 'rl-m-share': '임금 중 인건비 비중 (%)',
+    'rl-m-hand': '핸들링 작업 비중 (%)', 'rl-m-prod': '예상 생산성 향상률 (%)',
+    'rl-m-sick': '병가 감소 예상일 (일/년)', 'rl-m-inv': '진공 장비 투자 비용 (₩)',
+    'rtp-m-share': '전체 임금 중 순수 인건비에 해당하는 백분율 (일반적으로 80~100%)',
+    'rtp-m-hand': '근무 시간 중 실제 물건을 취급하는 시간의 비중',
+    'rr-m-time-lbl': '예상 투자 회수 기간', 'ru-m-time': '개월 (Months)',
+    'rr-m-save-lbl': '생산성 향상 추가 이익 (연간)', 'ru-m-save': '₩ / 년',
+    'rr-m-sick-lbl': '병가 감소 절감액 (연간)', 'ru-m-sick': '₩ / 년',
+    'rh-a1': '① 자동화 요건 입력', 'rh-a2': '계산 결과',
+    'rl-a-cost': '작업자 1인당 연간 인건비 (₩)', 'rl-a-emp': '교대 당 자동화로 대체되는 인원 수',
+    'rl-a-shift': '일일 교대 근무 횟수', 'rtp-a-shift': '예: 2교대, 3교대',
+    'rl-a-inv': '자동화 장비 투자 비용 (₩)',
+    'rr-a-time-lbl': '예상 투자 회수 기간', 'ru-a-time': '개월 (Months)',
+    'rr-a-save-lbl': '총 인건비 절감액 (연간)', 'ru-a-save': '₩ / 년',
   },
   en: {
-    'hdr-sub': 'Vacuum Calculator v3.0',
+    'hdr-sub': 'Vacuum Calculator v4.0',
     'tab-tf': 'Force Calc', 'tab-tc': 'Cup Select', 'tab-tfl': 'Flow Calc', 'tab-tv': 'Unit Convert', 'tab-tr': 'Reference',
     't1h': 'Theoretical Suction Force', 't1s': 'Calculate theoretical suction force and verify safety margin.',
-    't2h': 'Cup Size Back-Calculation', 't2s': 'Enter workpiece weight and conditions to back-calculate required cup diameter.',
+    't2h': 'Cup Quantity & Size Calculator', 't2s': 'Calculate required diameter or quantity based on workpiece load.',
+    'tbtn-tc-dia': 'Calc Diameter', 'tbtn-tc-qty': 'Calc Quantity',
     't3h': 'Vacuum Flow & Ejector Selection', 't3s': 'Calculate required ejector flow rate and suction response time.',
     't4h': 'Unit Converter', 't4s': 'Quickly convert between Metric and Imperial units for vacuum automation work.',
     't5h': 'Reference Data & Formulas',
@@ -172,7 +216,9 @@ const T = {
     'l-smode': 'Lifting Mode', 'so-h': 'Horizontal (Vertical Load)', 'so-v': 'Vertical (Side Load)',
     'l-smu': 'Friction Coeff. μ', 'smo1': '0.1 — Oily metal', 'smo2': '0.5 — Metal/Glass/Stone', 'smo3': '0.7 — Rubber',
     'l-ssf': 'Safety Factor S', 'ssf1': '1.5 — Smooth surface', 'ssf2': '2.0 — Standard', 'ssf3': '2.5 — Porous/Rough', 'ssf4': '4.0 — Vertical+Move',
-    'rl-sdia': 'Min Required Diameter (per cup)', 'rl-sf2': 'Required Force', 'rl-sa': 'Area per Cup',
+    'l-scdia': 'Cup Diameter (in)', 'l-sacc': 'Include Acceleration', 'tp-sacc': '※ 32.2 ft/s² = 1G', 'l-sav': 'Acceleration a (ft/s²)',
+    'rl-sdia': 'Min Required Diameter (per cup)', 'rl-sf2': 'Required Force (F)', 'rl-sa': 'Required Total Area (A)',
+    'rl-sqty': 'Min Required Quantity', 'ru-sqty': 'pcs',
     'th-d': 'Diameter', 'th-f': 'Theor. Force', 'th-m': 'Margin', 'th-r': 'Result', 's-tbl-ph': 'Calculate to see results',
     'l-fv': 'Internal Volume V (in³)', 'tp-fv': 'Sum of cup + piping internal volume',
     'l-fvac': 'Target Vacuum Pressure', 'l-ft': 'Target Response Time t (sec)',
@@ -231,6 +277,41 @@ const T = {
     'cbm-lbl-item': 'ITEM', 'cbm-lbl-name': 'Item Name', 'cbm-lbl-l': 'Length L', 'cbm-lbl-w': 'Width W', 'cbm-lbl-h': 'Height H', 'cbm-lbl-qty': 'Qty', 'cbm-lbl-wt': 'Weight (kg/box)', 'cbm-lbl-del': 'Del',
     'cbm-ph-name': 'e.g. VMECA Suction Cup Box',
     'tt5n': 'M (Metric)', 'cbm-chw-o1': '6,000 (IATA International)', 'cbm-chw-o2': '5,000 (General Air Freight)', 'cbm-chw-o3': '4,000 (Express Air Freight)',
+    // Engineering Tab
+    'tab-teng': 'Engineering',
+    't7h': 'Engineering Tools', 't7s': 'Performs additional engineering calculations for vacuum system design.',
+    'eh-hd': '① Hose Distribution', 'el-hd-main': 'Main Hose ID (in)', 'el-hd-sub': 'Sub Hose ID (in)',
+    'er-hd-lbl': 'Max Recommended Sub Hoses', 'etp-hd': '※ Number of sub hoses based on proportional cross-sectional area',
+    'eh-of': '② Orifice Flow', 'el-of-dia': 'Orifice Diameter (in)', 'el-of-vac': 'Vacuum Pressure (-PSI)',
+    'er-of-lbl': 'Est. Leak Flow', 'etp-of': '※ Approximate air ingress when vacuum is maintained in system',
+    'eh-hdia': '③ Recommended Hose Diameter', 'el-hdia-flow': 'Flow Rate (SCFM)', 'el-hdia-len': 'Hose Length (ft)',
+    'el-hdia-drop': 'Allowable Press. Drop (PSI)', 'er-hdia-lbl': 'Min Recommended ID', 'etp-hdia': '※ Based on pipe friction resistance (empirical formula approximating Darcy-Weisbach)',
+    'eh-alt': '④ Altitude Pressure', 'el-alt-h': 'Altitude ASL (ft)', 'er-alt-lbl': 'Ambient Press. (Abs)',
+    'etp-alt': '※ Max vacuum of ejectors cannot exceed this ambient pressure at high altitudes. During low-pressure weather, it drops ~5% further.',
+    'l-fl-mode': 'Calc Mode', 'fl-m-flow': 'Req. Flow Calc', 'fl-m-time': 'Evac. Time Calc', 'l-fe': 'Pump/Ejector Flow (SCFM)',
+    'el-hd-dir': 'Calc Direction', 'btn-hd-m2s': 'Main → Sub', 'btn-hd-s2m': 'Sub → Main', 'el-hd-qty': 'Sub Hose Quantity (pcs)',
+    'er-hd-lbl2': 'Min Req. Main ID', 'el-hdia-type': 'Line Type', 'btn-hdia-vac': 'Vacuum', 'btn-hdia-air': 'Compressed Air',
+    'el-hdia-pwork': 'Working Pressure (Gauge bar)', 'er-alt-wv': 'Max Vacuum in Bad Weather',
+    // ROI Tab
+    'tab-troi': 'ROI Calc',
+    't8h': 'Return on Investment (ROI) Calculator', 't8s': 'Calculate the estimated amortization period when introducing handling devices and automation systems.',
+    'tbtn-roi-m': 'Manual Handling Device', 'tbtn-roi-a': 'Automation System',
+    'rh-m1': '① Operations Info', 'rh-m2': 'Results',
+    'rl-m-days': 'Working days per year (d/yr)', 'rl-m-hours': 'Working hours per day (h/d)',
+    'rl-m-cost': 'Hourly labor cost ($/h)', 'rl-m-share': 'Labor cost share of wage (%)',
+    'rl-m-hand': 'Handling time share (%)', 'rl-m-prod': 'Expected productivity increase (%)',
+    'rl-m-sick': 'Expected sick leave reduction (d/yr)', 'rl-m-inv': 'Vacuum equipment investment ($)',
+    'rtp-m-share': 'Percentage of wage representing pure labor cost (typically 80-100%)',
+    'rtp-m-hand': 'Proportion of working hours actually spent handling items',
+    'rr-m-time-lbl': 'Expected Amortization Period', 'ru-m-time': 'Months',
+    'rr-m-save-lbl': 'Added Value from Productivity (Annual)', 'ru-m-save': '$ / year',
+    'rr-m-sick-lbl': 'Savings from Reduced Sick Leave (Annual)', 'ru-m-sick': '$ / year',
+    'rh-a1': '① Automation Requirements', 'rh-a2': 'Results',
+    'rl-a-cost': 'Annual labor cost per worker ($)', 'rl-a-emp': 'Replaced personnel per shift',
+    'rl-a-shift': 'Number of shifts per day', 'rtp-a-shift': 'e.g., 2 shifts, 3 shifts',
+    'rl-a-inv': 'Automation system investment ($)',
+    'rr-a-time-lbl': 'Expected Amortization Period', 'ru-a-time': 'Months',
+    'rr-a-save-lbl': 'Total Labor Savings (Annual)', 'ru-a-save': '$ / year',
   }
 };
 
@@ -274,6 +355,7 @@ function setLang(l) {
   setModeTip();
   doConv(); cF(); cS(); cFL();
   calcCbm();
+  calcRoiM(); calcRoiA();
 }
 
 function applyTranslations() {
@@ -292,6 +374,7 @@ function applyTranslations() {
     'l-sf', 'tp-sf', 'l-acc', 'acc-n', 'acc-y',
     'rl-area', 'rl-thy', 'rl-req', 'rl-mrg', 'fb1n',
     // Tab2 — Cup Select
+    'tbtn-tc-dia', 'tbtn-tc-qty', 'l-scdia', 'l-sacc', 'tp-sacc', 'l-sav', 'rl-sqty', 'ru-sqty',
     'l-sv', 'l-sn', 'l-smode', 'so-h', 'so-v', 'l-smu', 'smo1', 'smo2', 'smo3',
     'l-ssf', 'ssf1', 'ssf2', 'ssf3', 'ssf4',
     'rl-sdia', 'rl-sf2', 'rl-sa', 'th-d', 'th-f', 'th-m', 'th-r', 's-tbl-ph',
@@ -339,6 +422,18 @@ function applyTranslations() {
     'cbm-rl-ocean', 'cbm-rl-air', 'cbm-rl-chw', 'cbm-u-ocean', 'cbm-u-air',
     'th-item', 'th-idesc', 'th-idim', 'th-iqty', 'th-iw', 'th-icbm', 'cbm-tp-disc',
     'tt5n', 'cbm-chw-o1', 'cbm-chw-o2', 'cbm-chw-o3',
+    // Engineering Tab
+    't7h', 't7s', 'eh-hd', 'el-hd-main', 'el-hd-sub', 'er-hd-lbl', 'etp-hd',
+    'eh-of', 'el-of-dia', 'el-of-vac', 'er-of-lbl', 'etp-of',
+    'eh-hdia', 'el-hdia-flow', 'el-hdia-len', 'el-hdia-drop', 'er-hdia-lbl', 'etp-hdia',
+    'eh-alt', 'el-alt-h', 'er-alt-lbl', 'etp-alt',
+    'l-fl-mode', 'fl-m-flow', 'fl-m-time', 'l-fe',
+    'el-hd-dir', 'btn-hd-m2s', 'btn-hd-s2m', 'el-hd-qty', 'el-hdia-type', 'btn-hdia-vac', 'btn-hdia-air', 'el-hdia-pwork', 'er-alt-wv',
+    // Tab8 - ROI
+    't8h', 't8s', 'tbtn-roi-m', 'tbtn-roi-a',
+    'rh-m1', 'rh-m2', 'rl-m-days', 'rl-m-hours', 'rl-m-cost', 'rl-m-share', 'rl-m-hand', 'rl-m-prod', 'rl-m-sick', 'rl-m-inv',
+    'rtp-m-share', 'rtp-m-hand', 'rr-m-time-lbl', 'ru-m-time', 'rr-m-save-lbl', 'ru-m-save', 'rr-m-sick-lbl', 'ru-m-sick',
+    'rh-a1', 'rh-a2', 'rl-a-cost', 'rl-a-emp', 'rl-a-shift', 'rtp-a-shift', 'rl-a-inv', 'rr-a-time-lbl', 'ru-a-time', 'rr-a-save-lbl', 'ru-a-save',
   ];
   // IDs that contain HTML markup — use innerHTML
   const htmlIds = new Set([
@@ -364,7 +459,7 @@ function applyTranslations() {
     const v = t(tkId); if (v && e(elId)) e(elId).textContent = v;
   });
   // Update tab buttons
-  ['tf', 'tc', 'tfl', 'tcbm', 'tv', 'tr'].forEach(id => {
+  ['tf', 'tc', 'tfl', 'tcbm', 'teng', 'tv', 'tr', 'troi'].forEach(id => {
     const btn = document.querySelector(`[data-id="${id}"]`);
     if (btn) btn.textContent = t('tab-' + id);
   });
@@ -404,6 +499,9 @@ function updateUnitLabels() {
   setText('ru-f1', fu()); setText('ru-f2', fu());
   // Tab2
   setText('l-sm', t(imp ? 'l-sm-lb' : 'l-sm-kg'));
+  setText('l-scdia', t(imp ? 'l-dia-in' : 'l-dia-mm'));
+  setText('l-sav', t(imp ? 'l-av-ft' : 'l-av-ms'));
+  setText('tp-sacc', t(imp ? 'tp-acc-ft' : 'tp-acc-ms'));
   setText('ru-sd', du()); setText('ru-sf', fu()); setText('ru-sa', au());
   // Tab3
   setText('l-fv', t(imp ? 'l-fv-in' : 'l-fv-cm'));
@@ -411,6 +509,14 @@ function updateUnitLabels() {
   setText('tp-fl', t(imp ? 'tp-fl-sc' : 'tp-fl-lm'));
   setText('ru-flow', fmu2()); setText('ru-peak', fmu2());
   setText('ru-air', imp ? 'SCFM' : 'NL/min');
+
+  // Tab 7 Engineering lengths
+  setText('el-hd-main', t(imp ? 'l-dia-in' : 'l-dia-mm').replace(imp ? 'Cup Diameter' : '흡착컵 직경', lang === 'ko' ? '메인 배관 내경' : 'Main Hose ID'));
+  setText('el-hd-sub', t(imp ? 'l-dia-in' : 'l-dia-mm').replace(imp ? 'Cup Diameter' : '흡착컵 직경', lang === 'ko' ? '서브 배관 내경' : 'Sub Hose ID'));
+  setText('el-of-dia', t(imp ? 'l-dia-in' : 'l-dia-mm').replace(imp ? 'Cup Diameter' : '흡착컵 직경', lang === 'ko' ? '오리피스 직경' : 'Orifice Diameter'));
+  setText('ru-hdia-val', du());
+  setText('ru-of-val', fmu2());
+
   // range labels
   updateRangeLabels();
 }
@@ -435,7 +541,7 @@ function updateSliderDisplays() {
 // ============================================================
 function swTab(id, btn) {
   document.querySelectorAll('.tp').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('#mtabs .tab').forEach(t => t.classList.remove('active'));
   e(id).classList.add('active');
   btn.classList.add('active');
 }
@@ -592,37 +698,80 @@ function cF() {
 }
 
 // ============================================================
-// CALC SIZE (Tab2)
+// CALC SIZE / QTY (Tab2)
 // ============================================================
+function setCupMode(m, btn) {
+  sCupMode = m;
+  e('tbtn-tc-dia').classList.remove('active');
+  e('tbtn-tc-qty').classList.remove('active');
+  btn.classList.add('active');
+
+  e('sc-cnt-fld').style.display = m === 'dia' ? '' : 'none';
+  e('sc-dia-fld').style.display = m === 'qty' ? '' : 'none';
+
+  e('sr-dia-wrap').style.display = m === 'dia' ? '' : 'none';
+  e('sr-qty-wrap').style.display = m === 'qty' ? '' : 'none';
+
+  e('s-tbl-card').style.display = m === 'dia' ? '' : 'none';
+
+  cS();
+}
+
+function setSAcc(v) {
+  sUseAcc = v;
+  e('sacc-y').classList.toggle('active', v);
+  e('sacc-n').classList.toggle('active', !v);
+  e('sacc-fld').style.display = v ? '' : 'none';
+  cS();
+}
+
 function cS() {
   const W_kg = inpMass(parseFloat(e('s-mass').value) || 10);
   const P = getKpa('s-vac');
-  const n = parseInt(e('s-cnt').value) || 1;
   const S = parseFloat(e('s-sf').value) || 2.0;
   const mode = e('s-mode').value;
   const mu = parseFloat(e('s-mu').value) || 0.5;
+  const a_ms = sUseAcc ? inpAcc(parseFloat(e('s-acc-v').value) || 0) : 0;
+
   e('smu-fld').style.display = mode === 'vertical' ? '' : 'none';
 
-  const F_req = mode === 'horizontal' ? W_kg * G * S : W_kg * G * S / mu;
-  const F_per = F_req / n;
-  const A_cm2 = F_per / (P * 0.1);
-  const d_mm = 2 * Math.sqrt(A_cm2 / Math.PI) * 10;
+  let F_req;
+  if (mode === 'horizontal') F_req = W_kg * (G + a_ms) * S;
+  else if (mode === 'vertical') F_req = S * (Math.sqrt((W_kg * G / mu) ** 2 + (W_kg * a_ms) ** 2) || W_kg * G / mu);
+  else F_req = S * Math.sqrt((W_kg * G) ** 2 + (W_kg * a_ms / mu) ** 2);
 
-  e('r-sdia').textContent = isImp() ? (d_mm / 25.4).toFixed(3) : d_mm.toFixed(1);
   e('r-sf').textContent = dispForce(F_req);
-  e('r-sa').textContent = isImp() ? dispArea(A_cm2) : A_cm2.toFixed(2);
+  const totalA_cm2 = F_req / (P * 0.1);
+  e('r-sa').textContent = isImp() ? dispArea(totalA_cm2) : totalA_cm2.toFixed(2);
 
-  const std = [10, 15, 20, 25, 30, 40, 50, 63, 80, 100, 125];
-  let html = '';
-  std.forEach(d => {
-    const A = Math.PI * (d / 2 / 10) ** 2, F = P * A * n * 0.1;
-    const mg = (F - F_req) / F_req * 100, pass = F >= F_req;
-    const dD = isImp() ? `∅${(d / 25.4).toFixed(3)} in` : `∅${d} mm`;
-    const fD = isImp() ? `${dispForce(F)} lbf` : `${F.toFixed(1)} N`;
-    const badge = pass ? (mg > 50 ? `<span class="bdg bdg-ok">${t('tbl-ok')}</span>` : `<span class="bdg bdg-warn">${t('tbl-warn')}</span>`) : `<span class="bdg bdg-no">${t('tbl-fail')}</span>`;
-    html += `<tr><td class="num">${dD}</td><td>${fD}</td><td style="${pass ? 'color:var(--success)' : 'color:var(--danger)'}">${mg > 0 ? '+' : ''}${mg.toFixed(0)}%</td><td>${badge}</td></tr>`;
-  });
-  e('s-tbl').innerHTML = html;
+  if (sCupMode === 'dia') {
+    const n = parseInt(e('s-cnt').value) || 1;
+    const F_per = F_req / n;
+    const A_cm2 = F_per / (P * 0.1);
+    const d_mm = 2 * Math.sqrt(A_cm2 / Math.PI) * 10;
+
+    e('r-sdia').textContent = isImp() ? (d_mm / 25.4).toFixed(3) : d_mm.toFixed(1);
+
+    const std = [10, 15, 20, 25, 30, 40, 50, 63, 80, 100, 125];
+    let html = '';
+    std.forEach(d => {
+      const Ac = Math.PI * (d / 2 / 10) ** 2, Fc = P * Ac * n * 0.1;
+      const mg = (Fc - F_req) / F_req * 100, pass = Fc >= F_req;
+      const dD = isImp() ? `∅${(d / 25.4).toFixed(3)} in` : `∅${d} mm`;
+      const fD = isImp() ? `${dispForce(Fc)} lbf` : `${Fc.toFixed(1)} N`;
+      const badge = pass ? (mg > 50 ? `<span class="bdg bdg-ok">${t('tbl-ok')}</span>` : `<span class="bdg bdg-warn">${t('tbl-warn')}</span>`) : `<span class="bdg bdg-no">${t('tbl-fail')}</span>`;
+      html += `<tr><td class="num">${dD}</td><td>${fD}</td><td style="${pass ? 'color:var(--success)' : 'color:var(--danger)'}">${mg > 0 ? '+' : ''}${mg.toFixed(0)}%</td><td>${badge}</td></tr>`;
+    });
+    e('s-tbl').innerHTML = html;
+  } else {
+    const diam_mm = inpLen(parseFloat(e('s-cdia').value) || 40);
+    const A_cm2 = Math.PI * (diam_mm / 2 / 10) ** 2;
+    const F_per_cup = P * A_cm2 * 0.1;
+    const q_Req = F_per_cup > 0 ? F_req / F_per_cup : 0;
+    const qtyCount = Math.ceil(q_Req);
+
+    e('r-sqty').textContent = qtyCount;
+  }
 }
 
 // ============================================================
@@ -631,19 +780,36 @@ function cS() {
 function cFL() {
   const V_cm3 = inpVol(parseFloat(e('f-vol').value) || 50);
   const P = getKpa('f-vac');
-  const t2 = parseFloat(e('f-time').value) || 0.5;
   const Qleak = inpLeak(parseFloat(e('f-leak').value) || 0);
   const n = parseInt(e('f-cups').value) || 1;
   const P_atm = 101.3;
-  const Q_cm3s = V_cm3 * n * (P / P_atm) / t2;
-  const Q_lmin = Q_cm3s * 0.06;
-  const Q_tot = Q_lmin + Qleak * n;
+
+  let calc_t2 = 0;
+  let calc_Q_lmin = 0;
+
+  if (flMode === 'flow') {
+    const t2 = parseFloat(e('f-time').value) || 0.5;
+    const Q_cm3s = V_cm3 * n * (P / P_atm) / t2;
+    calc_Q_lmin = Q_cm3s * 0.06;
+    calc_t2 = t2;
+  } else {
+    const ejFlowStr = parseFloat(e('f-ejq').value) || 20;
+    const ejFlowLmin = isImp() ? ejFlowStr / 0.0353147 : ejFlowStr;
+    const effective_flow = Math.max(0.1, ejFlowLmin);
+
+    // Q_lmin = Q_cm3s * 0.06 => Q_cm3s = Q_lmin / 0.06
+    const Q_cm3s = effective_flow / 0.06;
+    calc_t2 = (V_cm3 * n * (P / P_atm)) / Q_cm3s;
+    calc_Q_lmin = effective_flow;
+  }
+
+  const Q_tot = calc_Q_lmin + Qleak * n;
   const Q_pk = Q_tot * 1.5, Q_air = Q_tot * 3;
 
   e('r-flow').textContent = isImp() ? dispFlow(Q_tot) : Q_tot.toFixed(2);
   e('r-peak').textContent = isImp() ? dispFlow(Q_pk) : Q_pk.toFixed(2);
   e('r-air').textContent = isImp() ? dispFlow(Q_air) : Q_air.toFixed(1);
-  e('r-rt').textContent = t2.toFixed(2);
+  e('r-rt').textContent = calc_t2.toFixed(3);
 
   const ejs = [
     { m: 'VME-07', f: 3 }, { m: 'VME-10', f: 8 }, { m: 'VME-15', f: 15 }, { m: 'VME-20', f: 28 }, { m: 'VME-30', f: 55 }, { m: 'VML-07', f: 6 }, { m: 'VML-10', f: 16 }
@@ -693,10 +859,15 @@ function setTempPreset(c) {
 // ============================================================
 // UNIT CONVERTER (Tab4)
 // ============================================================
-function setDir(d) {
+function setDir(d, btn) {
   convDir = d;
-  e('dir-mi').className = 'dir-btn' + (d === 'mi' ? ' dm' : '');
-  e('dir-im').className = 'dir-btn' + (d === 'im' ? ' di' : '');
+  if (btn) {
+    document.querySelectorAll('.uc-tabs .tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+  } else {
+    e('dir-mi').className = 'tab' + (d === 'mi' ? ' active' : '');
+    e('dir-im').className = 'tab' + (d === 'im' ? ' active' : '');
+  }
   updateConvLabels(); doConv();
 }
 
@@ -739,6 +910,9 @@ function updateConvLabels() {
   e('cvt-v').textContent = mi ? 'cm³ → in³' : 'in³ → cm³';
   e('cvl-vi').textContent = mi ? 'cm³' : 'in³';
   e('cvl-vo').textContent = mi ? 'in³' : 'cm³';
+  // Temperature
+  if (e('temp-c2f')) e('temp-c2f').style.display = mi ? 'block' : 'none';
+  if (e('temp-f2c')) e('temp-f2c').style.display = mi ? 'none' : 'block';
 }
 
 function doConv() {
@@ -972,6 +1146,162 @@ function calcCbm() {
 }
 
 // ============================================================
+// ENGINEERING CALCULATOR
+// ============================================================
+function setHdDir(d) {
+  eHdDir = d;
+  e('btn-hd-m2s').classList.toggle('active', d === 'm2s');
+  e('btn-hd-s2m').classList.toggle('active', d === 's2m');
+  e('fld-hd-main').style.display = d === 'm2s' ? '' : 'none';
+  e('fld-hd-qty').style.display = d === 's2m' ? '' : 'none';
+
+  if (d === 'm2s') {
+    e('er-hd-lbl').textContent = t('er-hd-lbl');
+    e('ru-hd-val').textContent = lang === 'ko' ? '개 (pcs)' : 'pcs';
+  } else {
+    e('er-hd-lbl').textContent = t('er-hd-lbl2');
+    e('ru-hd-val').textContent = du();
+  }
+  cEng();
+}
+
+function setHdiaType(t_val) {
+  eHdiaType = t_val;
+  e('btn-hdia-vac').classList.toggle('active', t_val === 'vac');
+  e('btn-hdia-air').classList.toggle('active', t_val === 'air');
+  e('fld-hdia-pwork').style.display = t_val === 'air' ? '' : 'none';
+  cEng();
+}
+
+function cEng() {
+  const imp = isImp();
+  // 1. Hose Distribution
+  const hdSub = parseFloat(e('e-hd-sub').value) || 0;
+  if (eHdDir === 'm2s') {
+    const hdMain = parseFloat(e('e-hd-main').value) || 0;
+    const qty = (hdSub > 0) ? Math.floor(Math.pow(hdMain / hdSub, 2)) : 0;
+    e('er-hd-val').textContent = qty > 0 ? qty : '—';
+  } else {
+    const hdQty = parseFloat(e('e-hd-qty').value) || 0;
+    const reqMain = hdSub * Math.sqrt(hdQty);
+    e('er-hd-val').textContent = reqMain > 0 ? reqMain.toFixed(2) : '—';
+  }
+
+  // 2. Orifice Flow
+  const odiaStr = parseFloat(e('e-of-dia').value) || 0;
+  const odia = imp ? (odiaStr * 25.4) : odiaStr; // convert to mm for internal formula
+  const ovacStr = parseFloat(e('e-of-vac').value) || 0;
+  const ovac = imp ? (ovacStr / 0.145038) : ovacStr; // convert to kPa for internal formula
+  // Empirical approximation: Q(L/min) ≈ 0.12 * D(mm)^2 * sqrt(P(kPa))
+  let oflow = 0.12 * Math.pow(odia, 2) * Math.sqrt(ovac);
+  if (imp) oflow = oflow * 0.0353147; // convert back to SCFM
+  e('er-of-val').textContent = oflow > 0 ? oflow.toFixed(2) : '—';
+
+  // 3. Hose Diameter
+  const hFlowStr = parseFloat(e('e-hdia-flow').value) || 0;
+  const hFlow = imp ? hFlowStr / 0.0353147 : hFlowStr; // -> L/min
+  const hLenStr = parseFloat(e('e-hdia-len').value) || 0;
+  const hLen = imp ? hLenStr / 3.28084 : hLenStr; // -> meters
+  const hDropStr = parseFloat(e('e-hdia-drop').value) || 0;
+  const hDrop = imp ? hDropStr / 0.145038 : hDropStr; // -> kPa
+  const hPwork = parseFloat(e('e-hdia-pwork').value) || 1; // Gauge bar
+
+  let recDia = 0; // mm
+  if (hFlow > 0 && hLen > 0 && hDrop > 0) {
+    if (eHdiaType === 'vac') {
+      recDia = 3 * Math.pow((Math.pow(hFlow, 1.85) * hLen / hDrop), 0.2);
+    } else {
+      const absP = hPwork + 1; // Absolute pressure in bar
+      recDia = 2 * Math.pow((Math.pow(hFlow, 1.85) * hLen / (hDrop * absP)), 0.2);
+    }
+  }
+  const displayDia = imp ? recDia / 25.4 : recDia;
+  e('er-hdia-val').textContent = displayDia > 0 ? Math.ceil(displayDia * 10) / 10 : '—';
+
+  // 4. Altitude Pressure
+  const altStr = parseFloat(e('e-alt-h').value) || 0;
+  const alt = imp ? altStr / 3.28084 : altStr; // -> meters
+  let atmP = 101.325 * Math.pow(1 - 2.25577e-5 * alt, 5.25588); // kPa
+
+  const displayAlt = imp ? atmP * 0.145038 : atmP;
+  e('er-alt-val').textContent = displayAlt > 0 ? displayAlt.toFixed(2) : '—';
+  e('er-alt-wv-val').textContent = displayAlt > 0 ? (displayAlt * 0.95).toFixed(2) : '—';
+
+  e('ru-alt-val').textContent = imp ? 'PSI' : 'kPa';
+  e('ru-alt-wv-val').textContent = imp ? 'PSI' : 'kPa';
+}
+
+function setFlMode(mode) {
+  flMode = mode;
+  e('fl-m-flow').classList.toggle('active', mode === 'flow');
+  e('fl-m-time').classList.toggle('active', mode === 'time');
+  e('fld-ft').style.display = mode === 'flow' ? '' : 'none';
+  e('fld-fe').style.display = mode === 'time' ? '' : 'none';
+  cFL();
+}
+
+// ============================================================
+// ROI CALCULATOR
+// ============================================================
+function swRoiTab(id, btn) {
+  document.querySelectorAll('.roi-tp').forEach(p => p.style.display = 'none');
+  document.querySelectorAll('#tbtn-roi-m, #tbtn-roi-a').forEach(t => t.classList.remove('active'));
+  e(id).style.display = 'block';
+  btn.classList.add('active');
+  if (id === 'troi-m') calcRoiM();
+  else calcRoiA();
+}
+
+function calcRoiM() {
+  const days = parseFloat(e('r-m-days').value) || 0;
+  const hours = parseFloat(e('r-m-hours').value) || 0;
+  const cost = parseFloat(e('r-m-cost').value) || 0;
+  const share = (parseFloat(e('r-m-share').value) || 0) / 100;
+  const hand = (parseFloat(e('r-m-hand').value) || 0) / 100;
+  const prod = (parseFloat(e('r-m-prod').value) || 0) / 100;
+  const sick = parseFloat(e('r-m-sick').value) || 0;
+  const inv = parseFloat(e('r-m-inv').value) || 0;
+
+  // Added value from productivity (annual)
+  // Annual wage = days * hours * cost
+  // Productive time wage that can be improved = Annual wage * share * hand
+  // Value improvement = Productive time wage * prod
+  const annualWage = days * hours * cost;
+  const valImprove = annualWage * share * hand * prod;
+
+  // Savings from sick leave (sick days * hours per day * cost per hour * share)
+  const sickSave = sick * hours * cost * share;
+
+  const totalSave = valImprove + sickSave;
+
+  let timeInMonths = 0;
+  if (totalSave > 0) {
+    timeInMonths = (inv / totalSave) * 12;
+  }
+
+  e('rr-m-time').textContent = timeInMonths > 0 ? timeInMonths.toFixed(1) : '—';
+  e('rr-m-save').textContent = valImprove > 0 ? valImprove.toLocaleString(undefined, { maximumFractionDigits: 0 }) : '—';
+  e('rr-m-sick').textContent = sickSave > 0 ? sickSave.toLocaleString(undefined, { maximumFractionDigits: 0 }) : '—';
+}
+
+function calcRoiA() {
+  const cost = parseFloat(e('r-a-cost').value) || 0;
+  const emp = parseFloat(e('r-a-emp').value) || 0;
+  const shift = parseFloat(e('r-a-shift').value) || 0;
+  const inv = parseFloat(e('r-a-inv').value) || 0;
+
+  const totalSave = emp * shift * cost;
+
+  let timeInMonths = 0;
+  if (totalSave > 0) {
+    timeInMonths = (inv / totalSave) * 12;
+  }
+
+  e('rr-a-time').textContent = timeInMonths > 0 ? timeInMonths.toFixed(1) : '—';
+  e('rr-a-save').textContent = totalSave > 0 ? totalSave.toLocaleString(undefined, { maximumFractionDigits: 0 }) : '—';
+}
+
+// ============================================================
 // THEME
 // ============================================================
 function setTheme(mode) {
@@ -998,3 +1328,6 @@ updateConvLabels();
 cF(); cS(); cFL(); doConv();
 renderCbmItems();
 calcCbm();
+calcRoiM(); calcRoiA();
+cEng();
+

@@ -439,6 +439,7 @@
       font-weight: 500;
       transition: border-color .2s, box-shadow .2s, background .3s, color .3s;
       -webkit-appearance: none;
+      appearance: none;
     }
 
     input[type="number"] {
@@ -473,6 +474,7 @@
     input[type="range"] {
       width: 100%;
       -webkit-appearance: none;
+      appearance: none;
       background: var(--border);
       height: 4px;
       border-radius: 2px;
@@ -1232,7 +1234,7 @@
   </script>
 
   <header>
-    <div class="logo">VMECA<span id="hdr-sub">진공 계산기 v3.0</span></div>
+    <div class="logo">VMECA<span id="hdr-sub">진공 계산기 v4.0</span></div>
     <div class="hdr-controls">
       <!-- Theme -->
       <div class="tgl-group" id="theme-grp" title="Theme">
@@ -1259,6 +1261,10 @@
         계산</button>
       <button class="tab" data-id="tc" onclick="swTab('tc',this)" data-ko="컵 선정" data-en="Cup Select">컵 선정</button>
       <button class="tab" data-id="tfl" onclick="swTab('tfl',this)" data-ko="유량 계산" data-en="Flow Calc">유량 계산</button>
+      <button class="tab" data-id="teng" onclick="swTab('teng',this)" data-ko="엔지니어링"
+        data-en="Engineering">엔지니어링</button>
+      <button class="tab" data-id="troi" onclick="swTab('troi',this)" data-ko="ROI 계산" data-en="ROI Calc">ROI
+        계산</button>
       <button class="tab" data-id="tv" onclick="swTab('tv',this)" data-ko="단위 변환" data-en="Unit Convert">단위 변환</button>
       <button class="tab" data-id="tr" onclick="swTab('tr',this)" data-ko="참고 데이터" data-en="Reference">참고 데이터</button>
       <button class="tab" data-id="tcbm" onclick="swTab('tcbm',this)" data-ko="CBM 계산" data-en="CBM Calc">CBM
@@ -1415,8 +1421,13 @@
 
     <!-- ======== TAB 2: CUP SELECT ======== -->
     <div id="tc" class="tp">
-      <h2 class="st" id="t2h">흡착컵 사이즈 역산</h2>
-      <p class="subl" id="t2s">워크피스 무게와 조건을 입력하면 필요한 흡착컵 직경을 역산합니다.</p>
+      <h2 class="st" id="t2h">흡착컵 수량 및 사이즈 예측</h2>
+      <p class="subl" id="t2s">워크피스 무게와 조건을 입력하면 안전 조건에 맞는 흡착컵 직경 또는 필요 수량을 역산합니다.</p>
+
+      <div class="tabs" style="margin-bottom: 24px; border-bottom: 1px solid var(--border);">
+        <button class="tab active" onclick="setCupMode('dia',this)" id="tbtn-tc-dia">직경 계산</button>
+        <button class="tab" onclick="setCupMode('qty',this)" id="tbtn-tc-qty">수량 계산</button>
+      </div>
       <div class="g2">
         <div>
           <div class="card">
@@ -1436,8 +1447,31 @@
                 <span></span><span></span><span></span>
               </div>
             </div>
-            <div class="fld"><label id="l-sn">흡착컵 수량</label><input type="number" id="s-cnt" value="2" min="1" max="20"
-                oninput="cS()"></div>
+
+            <div class="fld" id="sc-cnt-fld">
+              <label id="l-sn">흡착컵 수량 (개)</label>
+              <input type="number" id="s-cnt" value="2" min="1" max="100" oninput="cS()">
+            </div>
+
+            <div class="fld" id="sc-dia-fld" style="display:none;">
+              <label id="l-scdia">흡착컵 직경 (mm)</label>
+              <input type="number" id="s-cdia" value="40" min="1" oninput="cS()">
+            </div>
+
+            <div class="fld">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <label style="margin:0;" id="l-sacc">가속도 포함 여부</label>
+                <div class="tgl">
+                  <button class="tgl-btn" id="sacc-n" onclick="setSAcc(false)">미포함</button>
+                  <button class="tgl-btn active" id="sacc-y" onclick="setSAcc(true)">포함</button>
+                </div>
+              </div>
+              <p class="tip" id="tp-sacc">※ 9.81 m/s² = 1G</p>
+            </div>
+            <div class="fld" id="sacc-fld">
+              <label id="l-sav">가속도 a (m/s²)</label>
+              <input type="number" id="s-acc-v" value="5" min="0" step="0.1" oninput="cS()">
+            </div>
             <div class="fld">
               <label id="l-smode">리프팅 방식</label>
               <select id="s-mode" onchange="cS()">
@@ -1464,20 +1498,34 @@
             </div>
           </div>
           <div class="card">
-            <h2 class="st" style="font-size:13px;" id="c6h">권장 흡착컵 사이즈</h2>
-            <div class="rb pri" style="margin-bottom:12px;padding:22px;">
-              <div class="rlb" id="rl-sdia">최소 필요 직경 (컵 1개당)</div>
-              <div class="rv2" id="r-sdia" style="font-size:42px;">—</div>
-              <div class="ru" id="ru-sd">mm</div>
+            <h2 class="st" style="font-size:13px;" id="c6h">계산 결과</h2>
+
+            <!-- Result: Required Diameter -->
+            <div id="sr-dia-wrap">
+              <div class="rb pri" style="margin-bottom:12px;padding:22px;">
+                <div class="rlb" id="rl-sdia">최소 필요 직경 (컵 1개당)</div>
+                <div class="rv2" id="r-sdia" style="font-size:42px;">—</div>
+                <div class="ru" id="ru-sd">mm</div>
+              </div>
             </div>
+
+            <!-- Result: Required Quantity -->
+            <div id="sr-qty-wrap" style="display:none;">
+              <div class="rb pri" style="margin-bottom:12px;padding:22px;">
+                <div class="rlb" id="rl-sqty">최소 필요 수량</div>
+                <div class="rv2" id="r-sqty" style="font-size:42px;">—</div>
+                <div class="ru" id="ru-sqty">개 (pcs)</div>
+              </div>
+            </div>
+
             <div class="g2" style="margin-bottom:12px;">
               <div class="rb">
-                <div class="rlb" id="rl-sf2">필요 흡착력</div>
+                <div class="rlb" id="rl-sf2">필요 흡착력 (F)</div>
                 <div class="rv2" id="r-sf" style="color:var(--warning);font-size:20px;">—</div>
                 <div class="ru" id="ru-sf">N</div>
               </div>
               <div class="rb">
-                <div class="rlb" id="rl-sa">컵당 부담 면적</div>
+                <div class="rlb" id="rl-sa">요구 총 면적 (A)</div>
                 <div class="rv2" id="r-sa" style="color:var(--accent);font-size:20px;">—</div>
                 <div class="ru" id="ru-sa">cm²</div>
               </div>
@@ -1485,7 +1533,7 @@
           </div>
         </div>
         <div>
-          <div class="card">
+          <div class="card" id="s-tbl-card">
             <h2 class="st" style="font-size:13px;" id="c7h">VMECA 표준 사이즈 적합성</h2>
             <table class="dt">
               <thead>
@@ -1515,6 +1563,13 @@
         <div>
           <div class="card">
             <h2 class="st" style="font-size:13px;" id="c8h">시스템 조건</h2>
+            <div class="fld" style="margin-bottom:16px;">
+              <label id="l-fl-mode">계산 모드</label>
+              <div class="seg" style="margin-top:4px;">
+                <button class="sb active" id="fl-m-flow" onclick="setFlMode('flow')">필요 유량 계산</button>
+                <button class="sb" id="fl-m-time" onclick="setFlMode('time')">도달 시간 계산</button>
+              </div>
+            </div>
             <div class="fld"><label id="l-fv">배관 내부 용적 V (cm³)</label><input type="number" id="f-vol" value="50" min="1"
                 oninput="cFL()">
               <p class="tip" id="tp-fv">흡착컵 + 배관 내부 용적의 합계</p>
@@ -1532,8 +1587,10 @@
                 <span></span><span></span><span></span>
               </div>
             </div>
-            <div class="fld"><label id="l-ft">목표 응답 시간 t (sec)</label><input type="number" id="f-time" value="0.5"
-                min="0.01" step="0.01" oninput="cFL()"></div>
+            <div class="fld" id="fld-ft"><label id="l-ft">목표 응답 시간 t (sec)</label><input type="number" id="f-time"
+                value="0.5" min="0.01" step="0.01" oninput="cFL()"></div>
+            <div class="fld" id="fld-fe" style="display:none;"><label id="l-fe">펌프/이젝터 도달 유량 (L/min)</label><input
+                type="number" id="f-ejq" value="20" min="0.1" step="any" oninput="cFL()"></div>
             <div class="fld"><label id="l-fl">누설 유량 Q_leak (L/min)</label><input type="number" id="f-leak" value="0"
                 min="0" step="0.1" oninput="cFL()">
               <p class="tip" id="tp-fl">다공성 워크피스: 0.1~1.0 L/min 예상</p>
@@ -1599,9 +1656,20 @@
       <h2 class="st" id="t4h">단위 변환기</h2>
       <p class="subl" id="t4s">진공 자동화 업무에 필요한 메트릭 ↔ 임페리얼 단위를 빠르게 변환합니다.</p>
 
-      <div class="dir-sw">
-        <button class="dir-btn dm" id="dir-mi" onclick="setDir('mi')">METRIC → IMPERIAL</button>
-        <button class="dir-btn" id="dir-im" onclick="setDir('im')">IMPERIAL → METRIC</button>
+      <style>
+        .uc-tabs {
+          display: flex;
+          gap: 24px;
+          align-items: flex-end;
+          margin-bottom: 24px;
+          border-bottom: 1px solid var(--border);
+          justify-content: flex-start;
+          padding-bottom: 0;
+        }
+      </style>
+      <div class="uc-tabs">
+        <button class="tab active" id="dir-mi" onclick="setDir('mi',this)">METRIC → IMPERIAL</button>
+        <button class="tab" id="dir-im" onclick="setDir('im',this)">IMPERIAL → METRIC</button>
       </div>
 
       <div class="g2">
@@ -1686,30 +1754,6 @@
               </div>
             </div>
           </div>
-          <!-- Length -->
-          <div class="card">
-            <h2 class="st" style="font-size:13px;" id="cvh-l">길이 (Length)</h2>
-            <div class="cv-ttl" id="cvt-l">mm → inch / ft</div>
-            <div class="cv-row">
-              <div>
-                <div class="cu-lbl" id="cvl-li">mm</div><input type="number" id="cv-li" value="40" step="any"
-                  oninput="doConv()">
-              </div>
-              <div class="cv-arrow">⇒</div>
-              <div>
-                <div class="cu-lbl" id="cvl-lo1">inch</div>
-                <div class="cv-res" id="cv-lo1">1.5748</div>
-              </div>
-            </div>
-            <div class="cv-row">
-              <div></div>
-              <div></div>
-              <div>
-                <div class="cu-lbl" id="cvl-lo2">ft</div>
-                <div class="cv-res" id="cv-lo2">0.13123</div>
-              </div>
-            </div>
-          </div>
           <!-- Force -->
           <div class="card">
             <h2 class="st" style="font-size:13px;" id="cvh-f">힘 (Force)</h2>
@@ -1736,6 +1780,30 @@
           </div>
         </div>
         <div>
+          <!-- Length -->
+          <div class="card">
+            <h2 class="st" style="font-size:13px;" id="cvh-l">길이 (Length)</h2>
+            <div class="cv-ttl" id="cvt-l">mm → inch / ft</div>
+            <div class="cv-row">
+              <div>
+                <div class="cu-lbl" id="cvl-li">mm</div><input type="number" id="cv-li" value="40" step="any"
+                  oninput="doConv()">
+              </div>
+              <div class="cv-arrow">⇒</div>
+              <div>
+                <div class="cu-lbl" id="cvl-lo1">inch</div>
+                <div class="cv-res" id="cv-lo1">1.5748</div>
+              </div>
+            </div>
+            <div class="cv-row">
+              <div></div>
+              <div></div>
+              <div>
+                <div class="cu-lbl" id="cvl-lo2">ft</div>
+                <div class="cv-res" id="cv-lo2">0.13123</div>
+              </div>
+            </div>
+          </div>
           <!-- Mass -->
           <div class="card">
             <h2 class="st" style="font-size:13px;" id="cvh-m">질량 (Mass)</h2>
@@ -1793,52 +1861,62 @@
               </div>
             </div>
           </div>
+          <!-- Temperature -->
+          <div class="card">
+            <h2 class="st" style="font-size:13px;" id="cvh-t">온도 (Temperature)</h2>
+            <!-- °C → °F -->
+            <div id="temp-c2f">
+              <div class="cv-ttl" id="cvt-tc">°C → °F</div>
+              <div class="cv-row">
+                <div>
+                  <div class="cu-lbl">°C</div><input type="number" id="cv-tc" value="25" step="any"
+                    oninput="doConvTemp('c')">
+                </div>
+                <div class="cv-arrow">⇒</div>
+                <div>
+                  <div class="cu-lbl">°F</div>
+                  <div class="cv-res" id="cv-tf-out">77.0</div>
+                </div>
+              </div>
+            </div>
+            <!-- °F → °C -->
+            <div id="temp-f2c" style="display:none;">
+              <div class="cv-ttl" id="cvt-tf">°F → °C</div>
+              <div class="cv-row">
+                <div>
+                  <div class="cu-lbl">°F</div><input type="number" id="cv-tf" value="77" step="any"
+                    oninput="doConvTemp('f')">
+                </div>
+                <div class="cv-arrow">⇒</div>
+                <div>
+                  <div class="cu-lbl">°C</div>
+                  <div class="cv-res" id="cv-tc-out">25.0</div>
+                </div>
+              </div>
+              <!-- Quick ref row -->
+              <div style="margin-top:10px;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">
+                <div class="cv-res" style="font-size:11px;padding:6px 4px;text-align:center;cursor:pointer;"
+                  onclick="setTempPreset(-40)" title="-40°C = -40°F">-40°C<br><span
+                    style="color:var(--imperial)">-40°F</span>
+                </div>
+                <div class="cv-res" style="font-size:11px;padding:6px 4px;text-align:center;cursor:pointer;"
+                  onclick="setTempPreset(0)" title="0°C = 32°F">0°C<br><span style="color:var(--imperial)">32°F</span>
+                </div>
+                <div class="cv-res" style="font-size:11px;padding:6px 4px;text-align:center;cursor:pointer;"
+                  onclick="setTempPreset(20)" title="20°C = 68°F">20°C<br><span
+                    style="color:var(--imperial)">68°F</span>
+                </div>
+                <div class="cv-res" style="font-size:11px;padding:6px 4px;text-align:center;cursor:pointer;"
+                  onclick="setTempPreset(100)" title="100°C = 212°F">100°C<br><span
+                    style="color:var(--imperial)">212°F</span>
+                </div>
+              </div>
+              <p class="tip" style="margin-top:8px;" id="tp-temp">※ °F = °C × 9/5 + 32 &nbsp;|&nbsp; °C = (°F − 32) ×
+                5/9
+              </p>
+            </div>
+          </div>
         </div>
-      </div>
-
-      <!-- Temperature -->
-      <div class="card">
-        <h2 class="st" style="font-size:13px;" id="cvh-t">온도 (Temperature)</h2>
-        <!-- °C → °F -->
-        <div class="cv-ttl" id="cvt-tc">°C → °F</div>
-        <div class="cv-row">
-          <div>
-            <div class="cu-lbl">°C</div><input type="number" id="cv-tc" value="25" step="any" oninput="doConvTemp('c')">
-          </div>
-          <div class="cv-arrow">⇒</div>
-          <div>
-            <div class="cu-lbl">°F</div>
-            <div class="cv-res" id="cv-tf-out">77.0</div>
-          </div>
-        </div>
-        <!-- °F → °C -->
-        <div class="cv-ttl" style="margin-top:12px;" id="cvt-tf">°F → °C</div>
-        <div class="cv-row">
-          <div>
-            <div class="cu-lbl">°F</div><input type="number" id="cv-tf" value="77" step="any" oninput="doConvTemp('f')">
-          </div>
-          <div class="cv-arrow">⇒</div>
-          <div>
-            <div class="cu-lbl">°C</div>
-            <div class="cv-res" id="cv-tc-out">25.0</div>
-          </div>
-        </div>
-        <!-- Quick ref row -->
-        <div style="margin-top:10px;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">
-          <div class="cv-res" style="font-size:11px;padding:6px 4px;text-align:center;cursor:pointer;"
-            onclick="setTempPreset(-40)" title="-40°C = -40°F">-40°C<br><span style="color:var(--imperial)">-40°F</span>
-          </div>
-          <div class="cv-res" style="font-size:11px;padding:6px 4px;text-align:center;cursor:pointer;"
-            onclick="setTempPreset(0)" title="0°C = 32°F">0°C<br><span style="color:var(--imperial)">32°F</span></div>
-          <div class="cv-res" style="font-size:11px;padding:6px 4px;text-align:center;cursor:pointer;"
-            onclick="setTempPreset(20)" title="20°C = 68°F">20°C<br><span style="color:var(--imperial)">68°F</span>
-          </div>
-          <div class="cv-res" style="font-size:11px;padding:6px 4px;text-align:center;cursor:pointer;"
-            onclick="setTempPreset(100)" title="100°C = 212°F">100°C<br><span style="color:var(--imperial)">212°F</span>
-          </div>
-        </div>
-        <p class="tip" style="margin-top:8px;" id="tp-temp">※ °F = °C × 9/5 + 32 &nbsp;|&nbsp; °C = (°F − 32) × 5/9
-        </p>
       </div>
       <!-- Quick Reference -->
       <h2 class="st" id="qref-ttl" style="margin-top:8px;">빠른 참조표</h2>
@@ -2584,6 +2662,112 @@
       </div>
 
     </div>
+
+    <!-- ======== TAB 7: ENGINEERING ======== -->
+    <div id="teng" class="tp">
+      <h2 class="st" id="t7h">엔지니어링 툴</h2>
+      <p class="subl" id="t7s">진공 시스템 설계에 필요한 부가적인 엔지니어링 계산을 수행합니다.</p>
+
+      <div class="g2">
+        <div>
+          <!-- Hose Distribution -->
+          <div class="card">
+            <h2 class="st" style="font-size:13px;" id="eh-hd">① 배관 분배 (Hose Distribution)</h2>
+
+            <div class="fld">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <label style="margin:0;" id="el-hd-dir">계산 방향</label>
+                <div class="tgl">
+                  <button class="tgl-btn active" id="btn-hd-m2s" onclick="setHdDir('m2s')">Main → Sub</button>
+                  <button class="tgl-btn" id="btn-hd-s2m" onclick="setHdDir('s2m')">Sub → Main</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="fld" id="fld-hd-main"><label id="el-hd-main">메인 배관 내경 (mm)</label><input type="number"
+                id="e-hd-main" value="12" step="any" oninput="cEng()"></div>
+            <div class="fld"><label id="el-hd-sub">서브 배관 내경 (mm)</label><input type="number" id="e-hd-sub" value="6"
+                step="any" oninput="cEng()"></div>
+            <div class="fld" id="fld-hd-qty" style="display:none;"><label id="el-hd-qty">서브 배관 수량 (개)</label><input
+                type="number" id="e-hd-qty" value="4" step="1" oninput="cEng()"></div>
+
+            <div class="rb pri" style="margin-top:12px;">
+              <div class="rlb" id="er-hd-lbl">권장 서브 배관 최대 수량</div>
+              <div class="rv2" id="er-hd-val" style="color:var(--accent2);">4</div>
+              <div class="ru" id="ru-hd-val">개 (pcs)</div>
+            </div>
+            <p class="tip" style="margin-top:8px;" id="etp-hd">※ 단면적 비례 기준으로 분할 시 부족함 없는 호스 수량</p>
+          </div>
+
+          <!-- Orifice Flow -->
+          <div class="card">
+            <h2 class="st" style="font-size:13px;" id="eh-of">② 오리피스 유량 (Orifice Flow)</h2>
+            <div class="fld"><label id="el-of-dia">오리피스 직경 (mm)</label><input type="number" id="e-of-dia" value="1"
+                step="any" oninput="cEng()"></div>
+            <div class="fld"><label id="el-of-vac">진공 압력 (-kPa)</label><input type="number" id="e-of-vac" value="60"
+                step="any" oninput="cEng()"></div>
+            <div class="rb" style="margin-top:12px; border-color:var(--warning);">
+              <div class="rlb" id="er-of-lbl">예상 누설 유량</div>
+              <div class="rv2" id="er-of-val" style="color:var(--warning);">—</div>
+              <div class="ru" id="ru-of-val">L/min</div>
+            </div>
+            <p class="tip" style="margin-top:8px;" id="etp-of">※ 배관 내 진공도가 유지될 때 공기가 유입되는 대략적 유량</p>
+          </div>
+        </div>
+
+        <div>
+          <!-- Hose Diameter -->
+          <div class="card">
+            <h2 class="st" style="font-size:13px;" id="eh-hdia">③ 권장 배관 직경 (Hose Diameter)</h2>
+
+            <div class="fld">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <label style="margin:0;" id="el-hdia-type">배관 종류</label>
+                <div class="tgl">
+                  <button class="tgl-btn active" id="btn-hdia-vac" onclick="setHdiaType('vac')">진공 (Vacuum)</button>
+                  <button class="tgl-btn" id="btn-hdia-air" onclick="setHdiaType('air')">압축공기 (Air)</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="fld"><label id="el-hdia-flow">유량 (L/min)</label><input type="number" id="e-hdia-flow"
+                value="100" step="any" oninput="cEng()"></div>
+            <div class="fld"><label id="el-hdia-len">배관 길이 (m)</label><input type="number" id="e-hdia-len" value="2"
+                step="any" oninput="cEng()"></div>
+            <div class="fld" id="fld-hdia-pwork" style="display:none;"><label id="el-hdia-pwork">작업 압력 (Gauge
+                bar)</label><input type="number" id="e-hdia-pwork" value="6" step="any" oninput="cEng()"></div>
+            <div class="fld"><label id="el-hdia-drop">허용 압력 강하 (kPa)</label><input type="number" id="e-hdia-drop"
+                value="5" step="any" oninput="cEng()"></div>
+
+            <div class="rb" style="margin-top:12px; border-color:var(--success);">
+              <div class="rlb" id="er-hdia-lbl">최소 권장 내경</div>
+              <div class="rv2" id="er-hdia-val" style="color:var(--success);">—</div>
+              <div class="ru" id="ru-hdia-val">mm</div>
+            </div>
+            <p class="tip" style="margin-top:8px;" id="etp-hdia">※ 배관 마찰 저항 (Darcy-Weisbach / 층류 근사치 기반 경험공식) 적용</p>
+          </div>
+
+          <!-- Altitude Pressure -->
+          <div class="card">
+            <h2 class="st" style="font-size:13px;" id="eh-alt">④ 고도별 대기압 (Altitude Pressure)</h2>
+            <div class="fld"><label id="el-alt-h">해발 고도 (m)</label><input type="number" id="e-alt-h" value="1000"
+                step="any" oninput="cEng()"></div>
+            <div class="rb" style="margin-top:12px;padding:16px;">
+              <div class="rlb" id="er-alt-lbl">대기압 (절대압)</div>
+              <div class="rv2" id="er-alt-val">—</div>
+              <div class="ru" id="ru-alt-val">kPa</div>
+            </div>
+            <div class="rb" style="margin-top:12px;padding:16px; border-color:var(--warning);">
+              <div class="rlb" id="er-alt-wv">저기압 시 최대 진공 한계</div>
+              <div class="rv2" id="er-alt-wv-val" style="color:var(--warning);">—</div>
+              <div class="ru" id="ru-alt-wv-val">kPa</div>
+            </div>
+            <p class="tip" style="margin-top:8px;" id="etp-alt">※ 멕시코시티(2,240m) 등 고지대에서 이젝터의 최대 진공 도달 한계치는 이 대기압을 넘을 수
+              없음. 우천/저기압 시 일반 대기압에서 약 5% 추가 감소.</p>
+          </div>
+        </div>
+      </div>
+    </div>
     <!-- ======== TAB 6: CBM CALCULATOR ======== -->
     <div id="tcbm" class="tp">
       <h2 class="st" id="t6h">CBM 계산기</h2>
@@ -2728,6 +2912,115 @@
         </div>
       </div>
     </div>
+
+    <!-- ======== TAB 8: ROI ======== -->
+    <div id="troi" class="tp">
+      <h2 class="st" id="t8h">투자 회수 (ROI) 계산기</h2>
+      <p class="subl" id="t8s">핸들링 장비 및 자동화 시스템 도입에 따른 예상 투자 회수 기간을 계산합니다.</p>
+
+      <div class="tabs" style="margin-bottom: 24px; border-bottom: 1px solid var(--border);">
+        <button class="tab active" data-id="troi-m" onclick="swRoiTab('troi-m',this)" id="tbtn-roi-m">수동 핸들링
+          장비</button>
+        <button class="tab" data-id="troi-a" onclick="swRoiTab('troi-a',this)" id="tbtn-roi-a">자동화 시스템</button>
+      </div>
+
+      <!-- Manual Handling ROI -->
+      <div id="troi-m" class="roi-tp active" style="display:block;">
+        <div class="g2">
+          <div>
+            <div class="card">
+              <h2 class="st" style="font-size:13px;" id="rh-m1">① 작업 정보 입력</h2>
+              <div class="fld"><label id="rl-m-days">연간 근무일 (일/년)</label><input type="number" id="r-m-days" value="220"
+                  oninput="calcRoiM()"></div>
+              <div class="fld"><label id="rl-m-hours">일일 근무 시간 (시간/일)</label><input type="number" id="r-m-hours"
+                  value="8" oninput="calcRoiM()"></div>
+              <div class="fld"><label id="rl-m-cost">시간당 인건비 (₩/시간)</label><input type="number" id="r-m-cost"
+                  value="20000" oninput="calcRoiM()"></div>
+              <div class="fld"><label id="rl-m-share">임금 중 인건비 비중 (%)</label><input type="number" id="r-m-share"
+                  value="80" oninput="calcRoiM()">
+                <p class="tip" id="rtp-m-share">전체 임금 중 순수 인건비에 해당하는 백분율 (일반적으로 80~100%)</p>
+              </div>
+              <div class="fld"><label id="rl-m-hand">핸들링 작업 비중 (%)</label><input type="number" id="r-m-hand" value="50"
+                  oninput="calcRoiM()">
+                <p class="tip" id="rtp-m-hand">근무 시간 중 실제 물건을 취급하는 시간의 비중</p>
+              </div>
+              <div class="fld"><label id="rl-m-prod">예상 생산성 향상률 (%)</label><input type="number" id="r-m-prod" value="15"
+                  oninput="calcRoiM()"></div>
+              <div class="fld"><label id="rl-m-sick">병가 감소 예상일 (일/년)</label><input type="number" id="r-m-sick" value="5"
+                  oninput="calcRoiM()"></div>
+              <div class="fld"><label id="rl-m-inv">진공 장비 투자 비용 (₩)</label><input type="number" id="r-m-inv"
+                  value="10000000" oninput="calcRoiM()"></div>
+            </div>
+          </div>
+          <div>
+            <div class="card">
+              <h2 class="st" style="font-size:13px;" id="rh-m2">계산 결과</h2>
+              <div class="rb pri" style="margin-bottom:12px;padding:22px;">
+                <div class="rlb" id="rr-m-time-lbl">예상 투자 회수 기간</div>
+                <div class="rv2" id="rr-m-time" style="font-size:42px;">—</div>
+                <div class="ru" id="ru-m-time">개월 (Months)</div>
+              </div>
+              <div class="g2" style="margin-bottom:12px;">
+                <div class="rb">
+                  <div class="rlb" id="rr-m-save-lbl">생산성 향상 추가 이익 (연간)</div>
+                  <div class="rv2" id="rr-m-save" style="color:var(--success);font-size:20px;">—</div>
+                  <div class="ru" id="ru-m-save">₩ / 년</div>
+                </div>
+                <div class="rb">
+                  <div class="rlb" id="rr-m-sick-lbl">병가 감소 절감액 (연간)</div>
+                  <div class="rv2" id="rr-m-sick" style="color:var(--success);font-size:20px;">—</div>
+                  <div class="ru" id="ru-m-sick">₩ / 년</div>
+                </div>
+              </div>
+              <div class="fb" style="border-left-color:var(--accent);">
+                총 연간 절감 이익 = 생산성 향상 이익 + 병가 감소 절감액<br>
+                <div class="fn">회수 기간(개월) = (투자 비용 / 총 연간 절감 이익) × 12</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Automation ROI -->
+      <div id="troi-a" class="roi-tp" style="display:none;">
+        <div class="g2">
+          <div>
+            <div class="card">
+              <h2 class="st" style="font-size:13px;" id="rh-a1">① 자동화 요건 입력</h2>
+              <div class="fld"><label id="rl-a-cost">작업자 1인당 연간 인건비 (₩)</label><input type="number" id="r-a-cost"
+                  value="45000000" oninput="calcRoiA()"></div>
+              <div class="fld"><label id="rl-a-emp">교대 당 자동화로 대체되는 인원 수</label><input type="number" id="r-a-emp"
+                  value="2" oninput="calcRoiA()"></div>
+              <div class="fld"><label id="rl-a-shift">일일 교대 근무 횟수</label><input type="number" id="r-a-shift" value="2"
+                  oninput="calcRoiA()">
+                <p class="tip" id="rtp-a-shift">예: 2교대, 3교대</p>
+              </div>
+              <div class="fld"><label id="rl-a-inv">자동화 장비 투자 비용 (₩)</label><input type="number" id="r-a-inv"
+                  value="150000000" oninput="calcRoiA()"></div>
+            </div>
+          </div>
+          <div>
+            <div class="card">
+              <h2 class="st" style="font-size:13px;" id="rh-a2">계산 결과</h2>
+              <div class="rb pri" style="margin-bottom:12px;padding:22px;">
+                <div class="rlb" id="rr-a-time-lbl">예상 투자 회수 기간</div>
+                <div class="rv2" id="rr-a-time" style="font-size:42px;">—</div>
+                <div class="ru" id="ru-a-time">개월 (Months)</div>
+              </div>
+              <div class="rb" style="margin-bottom:12px;">
+                <div class="rlb" id="rr-a-save-lbl">총 인건비 절감액 (연간)</div>
+                <div class="rv2" id="rr-a-save" style="color:var(--success);font-size:24px;">—</div>
+                <div class="ru" id="ru-a-save">₩ / 년</div>
+              </div>
+              <div class="fb" style="border-left-color:var(--accent);">
+                총 절감액 = 교대 당 대체 인원 × 일일 교대 횟수 × 1인당 연간 인건비<br>
+                <div class="fn">회수 기간(개월) = (투자 비용 / 총 연간 절감액) × 12</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div> <!-- END ROI TAB -->
 
   </div>
 
