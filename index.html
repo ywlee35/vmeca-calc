@@ -516,45 +516,7 @@
       margin-bottom: 4px;
     }
 
-    .rv-input-group {
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-      background: rgba(0, 0, 0, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 4px;
-      padding: 8px 12px;
-      width: calc(50% - 6px);
-    }
 
-    :root.light .rv-input-group {
-      background: #ffffff;
-      border-color: rgba(0, 0, 0, 0.1);
-    }
-
-    .rv-minus {
-      display: none;
-    }
-
-    :root.light .rv-minus {
-      display: none;
-    }
-
-    .rv-input {
-      background: transparent;
-      border: none;
-      text-align: left;
-      font-family: 'Rajdhani', sans-serif;
-      font-size: 20px;
-      font-weight: 700;
-      color: #ffffff;
-      width: 100%;
-      outline: none;
-    }
-
-    :root.light .rv-input {
-      color: var(--text-main);
-    }
 
     .rv-display {
       font-family: 'Rajdhani', sans-serif;
@@ -1260,10 +1222,11 @@
 
   <script>
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-          .then(reg => console.log('서비스 워커 등록 성공!', reg))
-          .catch(err => console.log('등록 실패:', err));
+      // 개발 중 캐시 문제를 방지하기 위해 기존 서비스 워커를 등록 해제합니다.
+      navigator.serviceWorker.getRegistrations().then(function (registrations) {
+        for (let registration of registrations) {
+          registration.unregister();
+        }
       });
     }
   </script>
@@ -1296,10 +1259,10 @@
         계산</button>
       <button class="tab" data-id="tc" onclick="swTab('tc',this)" data-ko="컵 선정" data-en="Cup Select">컵 선정</button>
       <button class="tab" data-id="tfl" onclick="swTab('tfl',this)" data-ko="유량 계산" data-en="Flow Calc">유량 계산</button>
-      <button class="tab" data-id="tcbm" onclick="swTab('tcbm',this)" data-ko="CBM 계산" data-en="CBM Calc">CBM
-        계산</button>
       <button class="tab" data-id="tv" onclick="swTab('tv',this)" data-ko="단위 변환" data-en="Unit Convert">단위 변환</button>
       <button class="tab" data-id="tr" onclick="swTab('tr',this)" data-ko="참고 데이터" data-en="Reference">참고 데이터</button>
+      <button class="tab" data-id="tcbm" onclick="swTab('tcbm',this)" data-ko="CBM 계산" data-en="CBM Calc">CBM
+        계산</button>
     </div>
 
     <!-- ======== TAB 1: FORCE ======== -->
@@ -1345,10 +1308,8 @@
             <div class="fld">
               <label id="l-vac1">진공압력</label>
               <div class="rv-input-row">
-                <div class="rv-input-group">
-                  <input type="number" class="rv-input" id="vd1-inp" value="-28" step="any"
-                    oninput="syncVacInp('vac1','vd1-inp');cF()">
-                </div>
+                <input type="number" id="vd1-inp" value="-28" step="any" oninput="syncVacInp('vac1','vd1-inp');cF()"
+                  style="width: calc(50% - 8px);">
                 <div class="rv-display"><span id="vd1-disp-v">-28</span>&nbsp;<span id="vd1-disp-u">kPa</span></div>
               </div>
               <input type="range" id="vac1" min="1" max="29" value="9" step="any"
@@ -1457,54 +1418,51 @@
       <h2 class="st" id="t2h">흡착컵 사이즈 역산</h2>
       <p class="subl" id="t2s">워크피스 무게와 조건을 입력하면 필요한 흡착컵 직경을 역산합니다.</p>
       <div class="g2">
-        <div class="card">
-          <h2 class="st" style="font-size:13px;" id="c5h">입력 조건</h2>
-          <div class="fld"><label id="l-sm">워크피스 무게 W (kg)</label><input type="number" id="s-mass" value="10" min="0.1"
-              step="0.1" oninput="cS()"></div>
-          <div class="fld">
-            <label id="l-sv">진공압력</label>
-            <div class="rv-input-row">
-              <div class="rv-input-group">
-                <input type="number" class="rv-input" id="svd-inp" value="-28" step="any"
-                  oninput="syncVacInp('s-vac','svd-inp');cS()">
-              </div>
-              <div class="rv-display"><span id="svd-disp-v">-28</span>&nbsp;<span id="svd-disp-u">kPa</span></div>
-            </div>
-            <input type="range" id="s-vac" min="1" max="29" value="9" step="any"
-              oninput="syncVacSld('s-vac','svd-inp');cS()">
-            <div class="rl" id="srl">
-              <span></span><span></span><span></span>
-            </div>
-          </div>
-          <div class="fld"><label id="l-sn">흡착컵 수량</label><input type="number" id="s-cnt" value="2" min="1" max="20"
-              oninput="cS()"></div>
-          <div class="fld">
-            <label id="l-smode">리프팅 방식</label>
-            <select id="s-mode" onchange="cS()">
-              <option value="horizontal" id="so-h">수평 흡착 (수직 하중)</option>
-              <option value="vertical" id="so-v">수직 흡착 (측면 이동)</option>
-            </select>
-          </div>
-          <div class="fld" id="smu-fld" style="display:none;">
-            <label id="l-smu">마찰계수 μ</label>
-            <select id="s-mu" onchange="cS()">
-              <option value="0.1" id="smo1">0.1 — 기름 묻은 금속</option>
-              <option value="0.5" selected id="smo2">0.5 — 금속/유리/석재</option>
-              <option value="0.7" id="smo3">0.7 — 고무 표면</option>
-            </select>
-          </div>
-          <div class="fld">
-            <label id="l-ssf">안전계수 S</label>
-            <select id="s-sf" onchange="cS()">
-              <option value="1.5" id="ssf1">1.5 — 매끄러운 표면</option>
-              <option value="2.0" selected id="ssf2">2.0 — 일반 조건</option>
-              <option value="2.5" id="ssf3">2.5 — 다공성/거친 표면</option>
-              <option value="4.0" id="ssf4">4.0 — 수직+이동</option>
-            </select>
-          </div>
-          <button class="cbtn" onclick="cS()" id="btn-s">계산하기</button>
-        </div>
         <div>
+          <div class="card">
+            <h2 class="st" style="font-size:13px;" id="c5h">입력 조건</h2>
+            <div class="fld"><label id="l-sm">워크피스 무게 W (kg)</label><input type="number" id="s-mass" value="10"
+                min="0.1" step="0.1" oninput="cS()"></div>
+            <div class="fld">
+              <label id="l-sv">진공압력</label>
+              <div class="rv-input-row">
+                <input type="number" id="svd-inp" value="-28" step="any" oninput="syncVacInp('s-vac','svd-inp');cS()"
+                  style="width: calc(50% - 8px);">
+                <div class="rv-display"><span id="svd-disp-v">-28</span>&nbsp;<span id="svd-disp-u">kPa</span></div>
+              </div>
+              <input type="range" id="s-vac" min="1" max="29" value="9" step="any"
+                oninput="syncVacSld('s-vac','svd-inp');cS()">
+              <div class="rl" id="srl">
+                <span></span><span></span><span></span>
+              </div>
+            </div>
+            <div class="fld"><label id="l-sn">흡착컵 수량</label><input type="number" id="s-cnt" value="2" min="1" max="20"
+                oninput="cS()"></div>
+            <div class="fld">
+              <label id="l-smode">리프팅 방식</label>
+              <select id="s-mode" onchange="cS()">
+                <option value="horizontal" id="so-h">수평 흡착 (수직 하중)</option>
+                <option value="vertical" id="so-v">수직 흡착 (측면 이동)</option>
+              </select>
+            </div>
+            <div class="fld" id="smu-fld" style="display:none;">
+              <label id="l-smu">마찰계수 μ</label>
+              <select id="s-mu" onchange="cS()">
+                <option value="0.1" id="smo1">0.1 — 기름 묻은 금속</option>
+                <option value="0.5" selected id="smo2">0.5 — 금속/유리/석재</option>
+                <option value="0.7" id="smo3">0.7 — 고무 표면</option>
+              </select>
+            </div>
+            <div class="fld" style="margin-bottom:0;">
+              <label id="l-ssf">안전계수 S</label>
+              <select id="s-sf" onchange="cS()">
+                <option value="1.5" id="ssf1">1.5 — 매끄러운 표면</option>
+                <option value="2.0" selected id="ssf2">2.0 — 일반 조건</option>
+                <option value="2.5" id="ssf3">2.5 — 다공성/거친 표면</option>
+                <option value="4.0" id="ssf4">4.0 — 수직+이동</option>
+              </select>
+            </div>
+          </div>
           <div class="card">
             <h2 class="st" style="font-size:13px;" id="c6h">권장 흡착컵 사이즈</h2>
             <div class="rb pri" style="margin-bottom:12px;padding:22px;">
@@ -1525,6 +1483,8 @@
               </div>
             </div>
           </div>
+        </div>
+        <div>
           <div class="card">
             <h2 class="st" style="font-size:13px;" id="c7h">VMECA 표준 사이즈 적합성</h2>
             <table class="dt">
@@ -1552,38 +1512,35 @@
       <h2 class="st" id="t3h">진공 유량 및 이젝터 선정</h2>
       <p class="subl" id="t3s">진공 이젝터의 필요 유량과 흡착 응답 시간을 계산합니다.</p>
       <div class="g2">
-        <div class="card">
-          <h2 class="st" style="font-size:13px;" id="c8h">시스템 조건</h2>
-          <div class="fld"><label id="l-fv">배관 내부 용적 V (cm³)</label><input type="number" id="f-vol" value="50" min="1"
-              oninput="cFL()">
-            <p class="tip" id="tp-fv">흡착컵 + 배관 내부 용적의 합계</p>
-          </div>
-          <div class="fld">
-            <label id="l-fvac">목표 진공압력</label>
-            <div class="rv-input-row">
-              <div class="rv-input-group">
-                <input type="number" class="rv-input" id="fvd-inp" value="-28" step="any"
-                  oninput="syncVacInp('f-vac','fvd-inp');cFL()">
-              </div>
-              <div class="rv-display"><span id="fvd-disp-v">-28</span>&nbsp;<span id="fvd-disp-u">kPa</span></div>
-            </div>
-            <input type="range" id="f-vac" min="1" max="29" value="9" step="any"
-              oninput="syncVacSld('f-vac','fvd-inp');cFL()">
-            <div class="rl" id="frl">
-              <span></span><span></span><span></span>
-            </div>
-          </div>
-          <div class="fld"><label id="l-ft">목표 응답 시간 t (sec)</label><input type="number" id="f-time" value="0.5"
-              min="0.01" step="0.01" oninput="cFL()"></div>
-          <div class="fld"><label id="l-fl">누설 유량 Q_leak (L/min)</label><input type="number" id="f-leak" value="0"
-              min="0" step="0.1" oninput="cFL()">
-            <p class="tip" id="tp-fl">다공성 워크피스: 0.1~1.0 L/min 예상</p>
-          </div>
-          <div class="fld"><label id="l-fn">흡착컵 수량</label><input type="number" id="f-cups" value="1" min="1"
-              oninput="cFL()"></div>
-          <button class="cbtn" onclick="cFL()" id="btn-fl">계산하기</button>
-        </div>
         <div>
+          <div class="card">
+            <h2 class="st" style="font-size:13px;" id="c8h">시스템 조건</h2>
+            <div class="fld"><label id="l-fv">배관 내부 용적 V (cm³)</label><input type="number" id="f-vol" value="50" min="1"
+                oninput="cFL()">
+              <p class="tip" id="tp-fv">흡착컵 + 배관 내부 용적의 합계</p>
+            </div>
+            <div class="fld">
+              <label id="l-fvac">목표 진공압력</label>
+              <div class="rv-input-row">
+                <input type="number" id="fvd-inp" value="-28" step="any" oninput="syncVacInp('f-vac','fvd-inp');cFL()"
+                  style="width: calc(50% - 8px);">
+                <div class="rv-display"><span id="fvd-disp-v">-28</span>&nbsp;<span id="fvd-disp-u">kPa</span></div>
+              </div>
+              <input type="range" id="f-vac" min="1" max="29" value="9" step="any"
+                oninput="syncVacSld('f-vac','fvd-inp');cFL()">
+              <div class="rl" id="frl">
+                <span></span><span></span><span></span>
+              </div>
+            </div>
+            <div class="fld"><label id="l-ft">목표 응답 시간 t (sec)</label><input type="number" id="f-time" value="0.5"
+                min="0.01" step="0.01" oninput="cFL()"></div>
+            <div class="fld"><label id="l-fl">누설 유량 Q_leak (L/min)</label><input type="number" id="f-leak" value="0"
+                min="0" step="0.1" oninput="cFL()">
+              <p class="tip" id="tp-fl">다공성 워크피스: 0.1~1.0 L/min 예상</p>
+            </div>
+            <div class="fld"><label id="l-fn">흡착컵 수량</label><input type="number" id="f-cups" value="1" min="1"
+                oninput="cFL()"></div>
+          </div>
           <div class="card">
             <h2 class="st" style="font-size:13px;" id="c9h">필요 이젝터 사양</h2>
             <div class="g2" style="margin-bottom:12px;">
@@ -1614,6 +1571,8 @@
                 진공압 | t: 목표 시간</div>
             </div>
           </div>
+        </div>
+        <div>
           <div class="card">
             <h2 class="st" style="font-size:13px;" id="c10h">VMECA 이젝터 선정 가이드</h2>
             <table class="dt">
@@ -1668,6 +1627,30 @@
               <div>
                 <div class="cu-lbl" id="cvl-vpo2">-inHg</div>
                 <div class="cv-res" id="cv-vpo2">17.718</div>
+              </div>
+            </div>
+          </div>
+          <!-- Flow -->
+          <div class="card">
+            <h2 class="st" style="font-size:13px;" id="cvh-fl">유량 (Flow Rate)</h2>
+            <div class="cv-ttl" id="cvt-fl">L/min → SCFM / m³/hr</div>
+            <div class="cv-row">
+              <div>
+                <div class="cu-lbl" id="cvl-fli">L/min</div><input type="number" id="cv-fli" value="10" step="any"
+                  oninput="doConv()">
+              </div>
+              <div class="cv-arrow">⇒</div>
+              <div>
+                <div class="cu-lbl" id="cvl-flo1">SCFM</div>
+                <div class="cv-res" id="cv-flo1">0.35315</div>
+              </div>
+            </div>
+            <div class="cv-row">
+              <div></div>
+              <div></div>
+              <div>
+                <div class="cu-lbl" id="cvl-flo2">m³/hr</div>
+                <div class="cv-res" id="cv-flo2">0.60000</div>
               </div>
             </div>
           </div>
@@ -1793,30 +1776,7 @@
               </div>
             </div>
           </div>
-          <!-- Flow -->
-          <div class="card">
-            <h2 class="st" style="font-size:13px;" id="cvh-fl">유량 (Flow Rate)</h2>
-            <div class="cv-ttl" id="cvt-fl">L/min → SCFM / m³/hr</div>
-            <div class="cv-row">
-              <div>
-                <div class="cu-lbl" id="cvl-fli">L/min</div><input type="number" id="cv-fli" value="10" step="any"
-                  oninput="doConv()">
-              </div>
-              <div class="cv-arrow">⇒</div>
-              <div>
-                <div class="cu-lbl" id="cvl-flo1">SCFM</div>
-                <div class="cv-res" id="cv-flo1">0.35315</div>
-              </div>
-            </div>
-            <div class="cv-row">
-              <div></div>
-              <div></div>
-              <div>
-                <div class="cu-lbl" id="cvl-flo2">m³/hr</div>
-                <div class="cv-res" id="cv-flo2">0.60000</div>
-              </div>
-            </div>
-          </div>
+
           <!-- Volume -->
           <div class="card">
             <h2 class="st" style="font-size:13px;" id="cvh-v">용적 (Volume)</h2>
@@ -1877,7 +1837,8 @@
             onclick="setTempPreset(100)" title="100°C = 212°F">100°C<br><span style="color:var(--imperial)">212°F</span>
           </div>
         </div>
-        <p class="tip" style="margin-top:8px;" id="tp-temp">※ °F = °C × 9/5 + 32 &nbsp;|&nbsp; °C = (°F − 32) × 5/9</p>
+        <p class="tip" style="margin-top:8px;" id="tp-temp">※ °F = °C × 9/5 + 32 &nbsp;|&nbsp; °C = (°F − 32) × 5/9
+        </p>
       </div>
       <!-- Quick Reference -->
       <h2 class="st" id="qref-ttl" style="margin-top:8px;">빠른 참조표</h2>
@@ -1897,7 +1858,8 @@
         </div>
         <div class="qref-card">
           <div class="qref-hdr" id="qh-l">길이 Length</div>
-          <div class="qref-row"><span class="qm">1 mm</span><span class="qeq">=</span><span class="qi">0.03937 in</span>
+          <div class="qref-row"><span class="qm">1 mm</span><span class="qeq">=</span><span class="qi">0.03937
+              in</span>
           </div>
           <div class="qref-row"><span class="qm">25.4 mm</span><span class="qeq">=</span><span class="qi">1 inch
               (exact)</span></div>
@@ -1910,28 +1872,36 @@
         </div>
         <div class="qref-card">
           <div class="qref-hdr" id="qh-f">힘 Force</div>
-          <div class="qref-row"><span class="qm">1 N</span><span class="qeq">=</span><span class="qi">0.22481 lbf</span>
+          <div class="qref-row"><span class="qm">1 N</span><span class="qeq">=</span><span class="qi">0.22481
+              lbf</span>
           </div>
-          <div class="qref-row"><span class="qm">10 N</span><span class="qeq">=</span><span class="qi">2.2481 lbf</span>
+          <div class="qref-row"><span class="qm">10 N</span><span class="qeq">=</span><span class="qi">2.2481
+              lbf</span>
           </div>
           <div class="qref-row"><span class="qm">100 N</span><span class="qeq">=</span><span class="qi">22.481
               lbf</span></div>
           <div class="qref-row"><span class="qm">500 N</span><span class="qeq">=</span><span class="qi">112.40
               lbf</span></div>
-          <div class="qref-row"><span class="qm">1 kN</span><span class="qeq">=</span><span class="qi">224.81 lbf</span>
+          <div class="qref-row"><span class="qm">1 kN</span><span class="qeq">=</span><span class="qi">224.81
+              lbf</span>
           </div>
         </div>
         <div class="qref-card">
           <div class="qref-hdr" id="qh-m">질량 Mass</div>
-          <div class="qref-row"><span class="qm">1 kg</span><span class="qeq">=</span><span class="qi">2.2046 lb</span>
+          <div class="qref-row"><span class="qm">1 kg</span><span class="qeq">=</span><span class="qi">2.2046
+              lb</span>
           </div>
-          <div class="qref-row"><span class="qm">5 kg</span><span class="qeq">=</span><span class="qi">11.023 lb</span>
+          <div class="qref-row"><span class="qm">5 kg</span><span class="qeq">=</span><span class="qi">11.023
+              lb</span>
           </div>
-          <div class="qref-row"><span class="qm">10 kg</span><span class="qeq">=</span><span class="qi">22.046 lb</span>
+          <div class="qref-row"><span class="qm">10 kg</span><span class="qeq">=</span><span class="qi">22.046
+              lb</span>
           </div>
-          <div class="qref-row"><span class="qm">25 kg</span><span class="qeq">=</span><span class="qi">55.116 lb</span>
+          <div class="qref-row"><span class="qm">25 kg</span><span class="qeq">=</span><span class="qi">55.116
+              lb</span>
           </div>
-          <div class="qref-row"><span class="qm">50 kg</span><span class="qeq">=</span><span class="qi">110.23 lb</span>
+          <div class="qref-row"><span class="qm">50 kg</span><span class="qeq">=</span><span class="qi">110.23
+              lb</span>
           </div>
         </div>
         <div class="qref-card">
@@ -1957,7 +1927,8 @@
               in³</span></div>
           <div class="qref-row"><span class="qm">1 in³</span><span class="qeq">=</span><span class="qi">16.387
               cm³</span></div>
-          <div class="qref-row"><span class="qm">9.81 m/s²</span><span class="qeq">=</span><span class="qi">32.174 ft/s²
+          <div class="qref-row"><span class="qm">9.81 m/s²</span><span class="qeq">=</span><span class="qi">32.174
+              ft/s²
               (1G)</span></div>
         </div>
       </div>
