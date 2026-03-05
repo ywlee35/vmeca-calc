@@ -132,10 +132,10 @@ const T = {
     'th-cont': '컨테이너', 'th-cap': '용량 (CBM)', 'th-util': '적재율', 'th-qty': '적재 가능 수량',
     'cbm-rl-ocean': '해상 운임', 'cbm-rl-air': '항공 운임', 'cbm-rl-chw': '항공 과금중량',
     'cbm-u-ocean': 'USD (CBM 기준)', 'cbm-u-air': 'USD (과금중량 기준)',
-    'th-item': '#', 'th-idesc': '품목명', 'th-idim': '치수 (L×W×H)', 'th-iqty': '수량', 'th-iw': '중량(kg)', 'th-icbm': 'CBM',
+    'th-item': '#', 'th-idesc': 'Item Name', 'th-idim': 'Dimensions', 'th-iqty': 'Qty', 'th-iw': 'Weight', 'th-icbm': 'CBM',
     'cbm-tp-disc': '※ 위 운임은 참고용 견적입니다. 실제 운임은 출발지/목적지, 시즌, 포워더 계약 조건에 따라 다를 수 있습니다.',
     'cbm-info': '<strong>CBM (Cubic Meter)</strong> = 가로(m) × 세로(m) × 높이(m)<br>해상 운임은 실제 CBM 기준. 항공은 실중량과 부피중량(Chargeable Weight) 중 큰 값 적용.',
-    'cbm-lbl-item': '품목', 'cbm-lbl-name': '품목명', 'cbm-lbl-l': '가로 L', 'cbm-lbl-w': '세로 W', 'cbm-lbl-h': '높이 H', 'cbm-lbl-qty': '수량', 'cbm-lbl-wt': '중량 (kg/박스)', 'cbm-lbl-del': '삭제',
+    'cbm-lbl-item': '품목', 'cbm-lbl-name': '품목명', 'cbm-lbl-l': '가로 L', 'cbm-lbl-w': '세로 W', 'cbm-lbl-h': '높이 H', 'cbm-lbl-qty': '수량', 'cbm-lbl-wt': '중량', 'cbm-lbl-del': '삭제',
     'tt5n': 'M (미터)', 'cbm-chw-o1': '6,000 (IATA 국제선)', 'cbm-chw-o2': '5,000 (일반 항공)', 'cbm-chw-o3': '4,000 (특급 항공)',
     'cbm-ph-name': '예: VMECA 진공컵 박스',
     // Engineering Tab
@@ -318,10 +318,10 @@ const T = {
     'th-cont': 'Container', 'th-cap': 'Capacity (CBM)', 'th-util': 'Utilization', 'th-qty': 'Qty Fit',
     'cbm-rl-ocean': 'Ocean Freight', 'cbm-rl-air': 'Air Freight', 'cbm-rl-chw': 'Chargeable Weight',
     'cbm-u-ocean': 'USD (CBM basis)', 'cbm-u-air': 'USD (Chargeable Wt.)',
-    'th-item': '#', 'th-idesc': 'Item Name', 'th-idim': 'Dimensions (L×W×H)', 'th-iqty': 'Qty', 'th-iw': 'Weight(kg)', 'th-icbm': 'CBM',
+    'th-item': '#', 'th-idesc': 'Model Name', 'th-idim': 'Dimensions', 'th-iqty': 'Qty', 'th-iw': 'Weight', 'th-icbm': 'CBM',
     'cbm-tp-disc': '※ Freight estimates are for reference only. Actual rates vary by origin/destination, season, and forwarder agreement.',
     'cbm-info': '<strong>CBM (Cubic Meter)</strong> = Length(m) × Width(m) × Height(m)<br>Ocean freight uses actual CBM. Air freight uses the greater of actual weight vs. volumetric weight.',
-    'cbm-lbl-item': 'ITEM', 'cbm-lbl-name': 'Item Name', 'cbm-lbl-l': 'Length L', 'cbm-lbl-w': 'Width W', 'cbm-lbl-h': 'Height H', 'cbm-lbl-qty': 'Qty', 'cbm-lbl-wt': 'Weight (kg/box)', 'cbm-lbl-del': 'Del',
+    'cbm-lbl-item': 'ITEM', 'cbm-lbl-name': 'Model Name', 'cbm-lbl-l': 'Length L', 'cbm-lbl-w': 'Width W', 'cbm-lbl-h': 'Height H', 'cbm-lbl-qty': 'Qty', 'cbm-lbl-wt': 'Weight', 'cbm-lbl-del': 'Del',
     'cbm-ph-name': 'e.g. VMECA Suction Cup Box',
     'tt5n': 'M (Metric)', 'cbm-chw-o1': '6,000 (IATA International)', 'cbm-chw-o2': '5,000 (General Air Freight)', 'cbm-chw-o3': '4,000 (Express Air Freight)',
     // Engineering Tab
@@ -1148,11 +1148,13 @@ function setDir(d, btn) {
   resetV75('conv');
   convDir = d;
   if (btn) {
-    document.querySelectorAll('.uc-tabs .tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.sub-tabs .tab').forEach(t => t.classList.remove('active'));
     btn.classList.add('active');
   } else {
-    e('dir-mi').className = 'tab' + (d === 'mi' ? ' active' : '');
-    e('dir-im').className = 'tab' + (d === 'im' ? ' active' : '');
+    const mi = e('dir-mi');
+    const im = e('dir-im');
+    if (mi) mi.classList.toggle('active', d === 'mi');
+    if (im) im.classList.toggle('active', d === 'im');
   }
   updateConvLabels(); doConv();
 }
@@ -1267,6 +1269,10 @@ function setCbmUnit(u) {
   cbmUnit = u;
   ['cm', 'mm', 'in', 'ft'].forEach(x => { const b = e('cbm-u-' + x); if (b) b.classList.remove('active'); });
   const btn = e('cbm-u-' + u); if (btn) btn.classList.add('active');
+
+  // Reset items data on unit change
+  cbmItems = [{ name: '', l: '', w: '', h: '', qty: 1, wt: '' }];
+  renderCbmItems();
   calcCbm();
 }
 
@@ -1298,6 +1304,7 @@ function renderCbmItems() {
   const container = e('cbm-items');
   if (!container) return;
   const u = cbmUnit;
+  const wu = (u === 'in' || u === 'ft') ? 'lbs' : 'kg';
   const uDisp = { 'cm': 'cm', 'mm': 'mm', 'in': 'in', 'ft': 'ft' }[u];
   let html = '';
   cbmItems.forEach((item, idx) => {
@@ -1335,9 +1342,9 @@ function renderCbmItems() {
         </div>
       </div>
       <div class="fld" style="margin:0;">
-        <label>${t('cbm-lbl-wt')} (kg)</label>
-        <input type="number" id="cbm-wt-${idx}" value="${item.wt}" min="0" step="0.1"
-          oninput="updateCbmItem(${idx},'wt',this.value)" style="max-width:180px;">
+        <label>${t('cbm-lbl-wt')} (${wu})</label>
+        <input type="number" id="cbm-wt-${idx}" value="${item.wt}" min="0" step="any"
+          oninput="updateCbmItem(${idx},'wt',this.value)" style="max-width:200px;">
       </div>
     </div>`;
   });
@@ -1365,6 +1372,7 @@ function calcCbm() {
     const itemCbm = cbm * item.qty;
     const itemWkg = item.wt * item.qty;
     const u = cbmUnit;
+    const wu = (u === 'in' || u === 'ft') ? 'lbs' : 'kg';
     const dimDisp = `${item.l}×${item.w}×${item.h} ${u}`;
     totalCbm += itemCbm;
     totalWkg += itemWkg;
@@ -1377,17 +1385,64 @@ function calcCbm() {
       <td>${nameDisp}</td>
       <td style="font-family:'Rajdhani',sans-serif;color:var(--text-muted);">${dimDisp}</td>
       <td class="num">${item.qty}</td>
-      <td class="num">${item.wt}</td>
+      <td class="num">${item.wt} (${wu})</td>
       <td class="num" style="color:var(--accent2);">${itemCbm.toFixed(4)}</td>
     </tr>`;
   });
 
   // Update summary
+  const wu = (cbmUnit === 'in' || cbmUnit === 'ft') ? 'lbs' : 'kg';
   const numItems = cbmItems.length;
   setText('cbm-r-totalcbm', totalCbm.toFixed(4));
   setText('cbm-r-totalw', totalWkg.toFixed(2));
+  const totalWUnitEl = e('cbm-r-totalw-unit');
+  if (totalWUnitEl) totalWUnitEl.textContent = wu;
+
   setText('cbm-r-totalv', Math.round(totalVcm3).toLocaleString());
   setText('cbm-r-items', `${numItems} / ${totalBoxes}`);
+
+  // Calculate Air Freight (Chargeable Weight)
+  const airRate = parseFloat(e('cbm-air-rate').value) || 0;
+  const factor = parseFloat(e('cbm-chw').value) || 5000;
+  const volWeightKg = totalVcm3 / factor;
+  const actualWeightKg = (wu === 'lbs') ? totalWkg * 0.453592 : totalWkg;
+  const chargeableWeightKg = Math.max(volWeightKg, actualWeightKg);
+
+  // Convert for display
+  const displayChw = (wu === 'lbs') ? chargeableWeightKg * 2.20462 : chargeableWeightKg;
+  setText('cbm-r-chw', displayChw.toFixed(2));
+  setText('cbm-r-air', '$' + Math.round(displayChw * airRate).toLocaleString());
+
+  // Calculate Ocean Freight
+  const oceanRate = parseFloat(e('cbm-ocean-rate').value) || 0;
+  setText('cbm-r-ocean', '$' + Math.round(totalCbm * oceanRate).toLocaleString());
+
+  // Dynamic Label Updates for lbs/kg
+  const wtHeader = e('th-iw');
+  if (wtHeader) wtHeader.textContent = `${t('th-iw')} (${wu})`;
+
+  const airUnitLabel = e('cbm-u-air');
+  if (airUnitLabel) airUnitLabel.textContent = `USD (${wu === 'lbs' ? 'Chargeable Lbs' : t('cbm-u-air-desc')})`;
+
+  const chwUnitLabel = document.querySelector('.cbm-freight-card:nth-child(3) .cbm-freight-unit');
+  if (chwUnitLabel) chwUnitLabel.textContent = `${wu} (Chargeable Wt.)`;
+
+  const airPriceLabel = e('cbm-air-rate-lbl');
+  if (airPriceLabel) airPriceLabel.textContent = wu === 'lbs' ? `${t('cbm-air-lbl')} (USD/lbs)` : `${t('cbm-air-lbl')} (USD/kg)`;
+
+  const infoBox = e('cbm-info');
+  if (infoBox) {
+    const isKr = (e('l-ko') && e('l-ko').classList.contains('active'));
+    if (wu === 'lbs') {
+      infoBox.innerHTML = isKr ?
+        `<strong>CBM (Cubic Meter)</strong> = 가로(m) × 세로(m) × 높이(m)<br>해상 운임은 CBM 기준. 항공은 실중량(lbs)과 부피중량(Chargeable Lbs) 중 큰 값 적용.` :
+        `<strong>CBM (Cubic Meter)</strong> = L(m) × W(m) × H(m)<br>Ocean freight is based on CBM. Air freight applies the higher of actual weight (lbs) and Chargeable Lbs.`;
+    } else {
+      infoBox.innerHTML = isKr ?
+        `<strong>CBM (Cubic Meter)</strong> = 가로(m) × 세로(m) × 높이(m)<br>해상 운임은 실제 CBM 기준. 항공은 실중량과 부피중량(Chargeable Weight) 중 큰 값 적용.` :
+        `<strong>CBM (Cubic Meter)</strong> = L(m) × W(m) × H(m)<br>Ocean freight is by CBM. Air applies the higher of actual weight and Chargeable Weight.`;
+    }
+  }
 
   // Container utilization
   let contHtml = '';
@@ -1411,21 +1466,6 @@ function calcCbm() {
   });
   const contTbl = e('cbm-cont-tbl');
   if (contTbl) contTbl.innerHTML = contHtml;
-
-  // Freight
-  const oceanRate = parseFloat((e('cbm-ocean-rate') || { value: 50 }).value) || 50;
-  const airRate = parseFloat((e('cbm-air-rate') || { value: 5 }).value) || 5;
-  const chwFactor = parseFloat((e('cbm-chw') || { value: 5000 }).value) || 5000;
-
-  const oceanCost = totalCbm * oceanRate;
-  // Volumetric weight = totalVcm3 / chwFactor
-  const volWkg = totalVcm3 / chwFactor;
-  const chargeableWkg = Math.max(totalWkg, volWkg);
-  const airCost = chargeableWkg * airRate;
-
-  setText('cbm-r-ocean', '$' + oceanCost.toFixed(2));
-  setText('cbm-r-air', '$' + airCost.toFixed(2));
-  setText('cbm-r-chw', chargeableWkg.toFixed(2));
 
   const detailTbl = e('cbm-detail-tbl');
   if (detailTbl) detailTbl.innerHTML = detailHtml;
