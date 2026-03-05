@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vmeca-v4.0';
+const CACHE_NAME = 'vmeca-v7.9';
 // 오프라인에서 사용할 파일 목록
 const ASSETS_TO_CACHE = [
   './',

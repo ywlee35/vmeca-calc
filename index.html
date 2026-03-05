@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- VERSION: 7.8 -->
 <html lang="ko">
 
 <head>
@@ -78,16 +78,21 @@
       background: var(--header-bg);
       border-bottom: 1px solid var(--header-border);
       transition: background 0.3s;
-      padding: 12px 24px;
+      padding: 0;
       display: flex;
-      align-items: center;
-      justify-content: space-between;
+      flex-direction: column;
       position: sticky;
       top: 0;
       z-index: 100;
       backdrop-filter: blur(10px);
+    }
+
+    .hdr-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 24px;
       gap: 10px;
-      flex-wrap: wrap;
     }
 
     .logo {
@@ -142,12 +147,16 @@
     .tgl-btn.a-metric {
       background: var(--accent);
       color: #fff;
+      font-weight: 800;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
       box-shadow: 0 0 10px rgba(0, 168, 255, .4);
     }
 
     .tgl-btn.a-imperial {
       background: var(--imperial);
       color: #fff;
+      font-weight: 800;
+      text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
       box-shadow: 0 0 10px rgba(255, 152, 0, .4);
     }
 
@@ -183,21 +192,22 @@
     }
 
     :root.light .tabs {
-      border-bottom-color: var(--border);
+      border-top-color: rgba(0, 0, 0, 0.1);
     }
 
     :root.light .tab {
-      color: var(--text-muted);
+      color: rgba(255, 255, 255, 0.65);
     }
 
     :root.light .tab:hover {
-      color: var(--text);
+      color: #fff;
+      background: rgba(255, 255, 255, 0.12);
     }
 
     :root.light .tab.active {
-      color: var(--accent2);
-      border-bottom-color: var(--accent);
-      background: linear-gradient(180deg, transparent, rgba(0, 119, 204, .06));
+      color: #fff;
+      border-bottom-color: #fff;
+      background: rgba(255, 255, 255, 0.15);
     }
 
     :root.light .tgl-group {
@@ -207,6 +217,11 @@
 
     :root.light .tgl-btn {
       color: #446;
+    }
+
+    :root.light .tgl-btn.a-metric,
+    :root.light .tgl-btn.a-imperial {
+      color: #fff !important;
     }
 
     :root.light .cv-res {
@@ -324,11 +339,78 @@
       background: linear-gradient(90deg, var(--border), transparent);
     }
 
+    /* .tabs 는 이제 header 안으로 이동 */
     .tabs {
       display: flex;
-      margin-bottom: 24px;
-      border-bottom: 1px solid var(--border);
+      gap: 0;
+      justify-content: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
       overflow-x: auto;
+      scrollbar-width: none;
+      /* Firefox */
+      -ms-overflow-style: none;
+      /* IE/Edge */
+      padding: 0 16px;
+      background: transparent;
+    }
+
+    .tabs::-webkit-scrollbar {
+      display: none;
+      /* Chrome/Safari */
+    }
+
+    /* 탭 내부 서브 선택 버튼 전용 스타일 */
+    .sub-tabs {
+      display: flex;
+      justify-content: flex-start;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+      gap: 4px;
+      padding: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      background: transparent;
+    }
+
+    .sub-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .sub-tabs .tab {
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 9px 20px;
+      border-bottom: 2px solid transparent;
+      border-radius: 0;
+      background: var(--surface2);
+      margin-bottom: -1px;
+      text-shadow: none;
+    }
+
+    .sub-tabs .tab:hover {
+      color: var(--accent2);
+      background: rgba(0, 229, 255, 0.08);
+    }
+
+    .sub-tabs .tab.active {
+      color: var(--accent2);
+      border-bottom-color: var(--accent2);
+      background: rgba(0, 229, 255, 0.1);
+      text-shadow: none;
+    }
+
+    :root.light .sub-tabs .tab {
+      color: var(--text);
+      background: var(--surface2);
+    }
+
+    :root.light .sub-tabs .tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      background: rgba(0, 119, 204, 0.08);
     }
 
     .tab {
@@ -337,27 +419,29 @@
       letter-spacing: 1.5px;
       font-weight: 600;
       text-transform: uppercase;
-      padding: 10px 18px;
+      padding: 10px 16px;
       cursor: pointer;
-      color: var(--text-muted);
+      color: rgba(255, 255, 255, 0.55);
       border-bottom: 2px solid transparent;
-      margin-bottom: -1px;
       transition: all .2s;
       background: transparent;
       border-top: none;
       border-left: none;
       border-right: none;
       white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .tab:hover {
-      color: var(--text);
+      color: rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.05);
     }
 
     .tab.active {
-      color: var(--accent2);
+      color: #fff;
       border-bottom-color: var(--accent2);
-      background: linear-gradient(180deg, transparent, rgba(0, 229, 255, .05));
+      background: rgba(0, 229, 255, 0.08);
+      text-shadow: 0 0 12px rgba(0, 229, 255, 0.5);
     }
 
     .tp {
@@ -407,6 +491,40 @@
       .g2,
       .g3 {
         grid-template-columns: 1fr;
+      }
+
+      .hdr-row {
+        padding: 8px 16px;
+      }
+
+      .logo {
+        font-size: 20px;
+      }
+
+      .tabs {
+        padding: 0 8px;
+      }
+
+      .tab {
+        font-size: 11px;
+        padding: 9px 10px;
+        letter-spacing: 0.8px;
+      }
+
+      .container {
+        padding: 16px 12px;
+      }
+    }
+
+    @media(max-width:480px) {
+      .logo {
+        font-size: 18px;
+      }
+
+      .tab {
+        font-size: 10px;
+        padding: 8px 8px;
+        letter-spacing: 0;
       }
     }
 
@@ -633,7 +751,7 @@
 
     .sb {
       flex: 1;
-      padding: 5px;
+      padding: 5px 12px;
       background: transparent;
       border: none;
       border-radius: 2px;
@@ -645,12 +763,17 @@
       cursor: pointer;
       transition: all .2s;
       text-transform: uppercase;
+      white-space: nowrap;
+      min-width: 80px;
     }
 
     .sb.active {
       background: var(--accent);
       color: #fff;
-      box-shadow: 0 0 10px rgba(0, 168, 255, .4);
+      font-weight: 800;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 0 15px rgba(0, 168, 255, .3);
+      transform: scale(1.02);
     }
 
     .cbtn {
@@ -1234,28 +1357,11 @@
   </script>
 
   <header>
-    <div class="logo">VMECA<span id="hdr-sub">진공 계산기 v4.0</span></div>
-    <div class="hdr-controls">
-      <!-- Theme -->
-      <div class="tgl-group" id="theme-grp" title="Theme">
-        <button class="tgl-btn" id="th-dark" onclick="setTheme('dark')" title="Dark Mode">🌙</button>
-        <button class="tgl-btn a-metric" id="th-light" onclick="setTheme('light')" title="Light Mode">☀️</button>
-      </div>
-      <!-- Language -->
-      <div class="tgl-group">
-        <button class="tgl-btn a-metric" id="l-ko" onclick="setLang('ko')">한국어</button>
-        <button class="tgl-btn" id="l-en" onclick="setLang('en')">EN</button>
-      </div>
-      <!-- Unit -->
-      <div class="tgl-group">
-        <button class="tgl-btn a-metric" id="u-metric" onclick="setUnit('metric')">METRIC</button>
-        <button class="tgl-btn" id="u-imperial" onclick="setUnit('imperial')">IMPERIAL</button>
-      </div>
-      <div class="unit-pill metric" id="upill">SI · mm / kg / kPa / N</div>
+    <!-- 상단 로고 행 -->
+    <div class="hdr-row">
+      <div class="logo">VMECA<span id="hdr-sub">진공 계산기 v7.5</span></div>
     </div>
-  </header>
-
-  <div class="container">
+    <!-- 탭 내비게이션 행 -->
     <div class="tabs" id="mtabs">
       <button class="tab active" data-id="tf" onclick="swTab('tf',this)" data-ko="흡착력 계산" data-en="Force Calc">흡착력
         계산</button>
@@ -1269,7 +1375,11 @@
       <button class="tab" data-id="tr" onclick="swTab('tr',this)" data-ko="참고 데이터" data-en="Reference">참고 데이터</button>
       <button class="tab" data-id="tcbm" onclick="swTab('tcbm',this)" data-ko="CBM 계산" data-en="CBM Calc">CBM
         계산</button>
+      <button class="tab" data-id="tset" onclick="swTab('tset',this)" data-ko="설정" data-en="Settings">⚙️ 설정</button>
     </div>
+  </header>
+
+  <div class="container">
 
     <!-- ======== TAB 1: FORCE ======== -->
     <div id="tf" class="tp active">
@@ -1288,23 +1398,58 @@
               </select>
             </div>
             <div id="d-circle">
-              <div class="fld"><label id="l-dia">컵 직경 (mm)</label><input type="number" id="cup-dia" value="40" min="1"
-                  oninput="cF()"></div>
+              <div class="fld"><label id="l-dia">컵 직경</label>
+                <div class="rv-input-row">
+                  <input type="number" id="cup-dia" value="50" min="1" oninput="cF()" style="width: calc(65% - 8px);">
+                  <select id="cup-dia-u" onchange="cF()" style="width: 35%;">
+                    <option value="mm">mm</option>
+                    <option value="inch">inch</option>
+                  </select>
+                </div>
+              </div>
             </div>
             <div id="d-oval" style="display:none;">
               <div class="g2">
-                <div class="fld"><label id="l-ca">장축 a (mm)</label><input type="number" id="cup-a" value="60" min="1"
-                    oninput="cF()"></div>
-                <div class="fld"><label id="l-cb">단축 b (mm)</label><input type="number" id="cup-b" value="40" min="1"
-                    oninput="cF()"></div>
+                <div class="fld"><label id="l-ca">장축 a</label>
+                  <div class="rv-input-row">
+                    <input type="number" id="cup-a" value="60" min="1" oninput="cF()" style="width: calc(55% - 4px);">
+                    <select id="cup-a-u" onchange="cF()" style="width: 45%; padding: 0 4px;">
+                      <option value="mm">mm</option>
+                      <option value="inch">in</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="fld"><label id="l-cb">단축 b</label>
+                  <div class="rv-input-row">
+                    <input type="number" id="cup-b" value="40" min="1" oninput="cF()" style="width: calc(55% - 4px);">
+                    <select id="cup-b-u" onchange="cF()" style="width: 45%; padding: 0 4px;">
+                      <option value="mm">mm</option>
+                      <option value="inch">in</option>
+                    </select>
+                  </div>
+                </div>
               </div>
             </div>
             <div id="d-rect" style="display:none;">
               <div class="g2">
-                <div class="fld"><label id="l-cw">가로 W (mm)</label><input type="number" id="cup-w" value="60" min="1"
-                    oninput="cF()"></div>
-                <div class="fld"><label id="l-ch">세로 H (mm)</label><input type="number" id="cup-h" value="40" min="1"
-                    oninput="cF()"></div>
+                <div class="fld"><label id="l-cw">가로 W</label>
+                  <div class="rv-input-row">
+                    <input type="number" id="cup-w" value="60" min="1" oninput="cF()" style="width: calc(55% - 4px);">
+                    <select id="cup-w-u" onchange="cF()" style="width: 45%; padding: 0 4px;">
+                      <option value="mm">mm</option>
+                      <option value="inch">in</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="fld"><label id="l-ch">세로 H</label>
+                  <div class="rv-input-row">
+                    <input type="number" id="cup-h" value="40" min="1" oninput="cF()" style="width: calc(55% - 4px);">
+                    <select id="cup-h-u" onchange="cF()" style="width: 45%; padding: 0 4px;">
+                      <option value="mm">mm</option>
+                      <option value="inch">in</option>
+                    </select>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="fld">
@@ -1313,12 +1458,22 @@
             </div>
             <div class="fld">
               <label id="l-vac1">진공압력</label>
-              <div class="rv-input-row">
-                <input type="number" id="vd1-inp" value="-28" step="any" oninput="syncVacInp('vac1','vd1-inp');cF()"
-                  style="width: calc(50% - 8px);">
-                <div class="rv-display"><span id="vd1-disp-v">-28</span>&nbsp;<span id="vd1-disp-u">kPa</span></div>
+              <div class="rv-input-row" style="margin-bottom: 4px;">
+                <input type="number" id="vd1-inp" value="-60" step="any" oninput="syncVacInp('vac1','vd1-inp');cF()"
+                  style="width: calc(45% - 8px);">
+                <select id="vac1-u" onchange="cF()" style="width: 25%;">
+                  <option value="kPa">kPa</option>
+                  <option value="bar">bar</option>
+                  <option value="mbar">mbar</option>
+                  <option value="inHg">inHg</option>
+                  <option value="mmHg">mmHg</option>
+                  <option value="pct">%</option>
+                  <option value="Torr">Torr</option>
+                </select>
+                <div class="rv-display" style="width: 30%;"><span id="vd1-disp-v">-60</span> <span
+                    id="vd1-disp-u">kPa</span></div>
               </div>
-              <input type="range" id="vac1" min="1" max="29" value="9" step="any"
+              <input type="range" id="vac1" min="1" max="29" value="19.33" step="any"
                 oninput="syncVacSld('vac1','vd1-inp');cF()">
               <div class="rl" id="rl1">
                 <span></span><span></span><span></span>
@@ -1370,8 +1525,15 @@
               <p class="tip" id="tp-acc">※ 9.81 m/s² = 1G</p>
             </div>
             <div class="fld">
-              <label id="l-mass">워크피스 질량 W (kg)</label>
-              <input type="number" id="w-mass" value="5" min="0" step="0.1" oninput="cF()">
+              <label id="l-mass">워크피스 질량 W</label>
+              <div class="rv-input-row">
+                <input type="number" id="w-mass" value="5" min="0" step="0.1" oninput="cF()"
+                  style="width: calc(65% - 8px);">
+                <select id="w-mass-u" onchange="cF()" style="width: 35%;">
+                  <option value="kg">kg</option>
+                  <option value="lb">lbs</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>
@@ -1410,7 +1572,7 @@
             <div class="fb" id="fb2">F<sub>required</sub> = W × g × S</div>
           </div>
           <div class="card">
-            <h2 class="st" style="font-size:13px;" id="c4h">상세 계산 과정</h2>
+            <h2 class="st" style="font-size:13px;" id="c4h">상세 계산</h2>
             <div id="calc-steps"
               style="font-family:'Rajdhani',sans-serif;font-size:12px;line-height:2.2;color:var(--text-muted);">— 입력 후
               표시됩니다 —</div>
@@ -1424,7 +1586,7 @@
       <h2 class="st" id="t2h">흡착컵 수량 및 사이즈 예측</h2>
       <p class="subl" id="t2s">워크피스 무게와 조건을 입력하면 안전 조건에 맞는 흡착컵 직경 또는 필요 수량을 역산합니다.</p>
 
-      <div class="tabs" style="margin-bottom: 24px; border-bottom: 1px solid var(--border);">
+      <div class="sub-tabs">
         <button class="tab active" onclick="setCupMode('dia',this)" id="tbtn-tc-dia">직경 계산</button>
         <button class="tab" onclick="setCupMode('qty',this)" id="tbtn-tc-qty">수량 계산</button>
       </div>
@@ -1432,16 +1594,35 @@
         <div>
           <div class="card">
             <h2 class="st" style="font-size:13px;" id="c5h">입력 조건</h2>
-            <div class="fld"><label id="l-sm">워크피스 무게 W (kg)</label><input type="number" id="s-mass" value="10"
-                min="0.1" step="0.1" oninput="cS()"></div>
+            <div class="fld">
+              <label id="l-sm">워크피스 무게 W</label>
+              <div class="rv-input-row">
+                <input type="number" id="s-mass" value="10" min="0.1" step="0.1" oninput="cS()"
+                  style="width: calc(65% - 8px);">
+                <select id="s-mass-u" onchange="cS()" style="width: 35%;">
+                  <option value="kg">kg</option>
+                  <option value="lb">lbs</option>
+                </select>
+              </div>
+            </div>
             <div class="fld">
               <label id="l-sv">진공압력</label>
-              <div class="rv-input-row">
-                <input type="number" id="svd-inp" value="-28" step="any" oninput="syncVacInp('s-vac','svd-inp');cS()"
-                  style="width: calc(50% - 8px);">
-                <div class="rv-display"><span id="svd-disp-v">-28</span>&nbsp;<span id="svd-disp-u">kPa</span></div>
+              <div class="rv-input-row" style="margin-bottom: 4px;">
+                <input type="number" id="svd-inp" value="-60" step="any" oninput="syncVacInp('s-vac','svd-inp');cS()"
+                  style="width: calc(45% - 8px);">
+                <select id="s-vac-u" onchange="cS()" style="width: 25%;">
+                  <option value="kPa">kPa</option>
+                  <option value="bar">bar</option>
+                  <option value="mbar">mbar</option>
+                  <option value="inHg">inHg</option>
+                  <option value="mmHg">mmHg</option>
+                  <option value="pct">%</option>
+                  <option value="Torr">Torr</option>
+                </select>
+                <div class="rv-display" style="width: 30%;"><span id="svd-disp-v">-60</span> <span
+                    id="svd-disp-u">kPa</span></div>
               </div>
-              <input type="range" id="s-vac" min="1" max="29" value="9" step="any"
+              <input type="range" id="s-vac" min="1" max="29" value="19.33" step="any"
                 oninput="syncVacSld('s-vac','svd-inp');cS()">
               <div class="rl" id="srl">
                 <span></span><span></span><span></span>
@@ -1454,16 +1635,22 @@
             </div>
 
             <div class="fld" id="sc-dia-fld" style="display:none;">
-              <label id="l-scdia">흡착컵 직경 (mm)</label>
-              <input type="number" id="s-cdia" value="40" min="1" oninput="cS()">
+              <label id="l-scdia">흡착컵 직경</label>
+              <div class="rv-input-row">
+                <input type="number" id="s-cdia" value="40" min="1" oninput="cS()" style="width: calc(65% - 8px);">
+                <select id="s-cdia-u" onchange="cS()" style="width: 35%;">
+                  <option value="mm">mm</option>
+                  <option value="inch">inch</option>
+                </select>
+              </div>
             </div>
 
             <div class="fld">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
                 <label style="margin:0;" id="l-sacc">가속도 포함 여부</label>
-                <div class="tgl">
-                  <button class="tgl-btn" id="sacc-n" onclick="setSAcc(false)">미포함</button>
-                  <button class="tgl-btn active" id="sacc-y" onclick="setSAcc(true)">포함</button>
+                <div class="seg" style="margin-top:4px;">
+                  <button class="sb active" id="sacc-y" onclick="setSAcc(true)">포함</button>
+                  <button class="sb" id="sacc-n" onclick="setSAcc(false)">미포함</button>
                 </div>
               </div>
               <p class="tip" id="tp-sacc">※ 9.81 m/s² = 1G</p>
@@ -1551,6 +1738,12 @@
               </tbody>
             </table>
           </div>
+          <div class="card">
+            <h2 class="st" style="font-size:13px;" id="c4h-s">상세 계산</h2>
+            <div id="s-calc-steps"
+              style="font-family:'Rajdhani',sans-serif;font-size:12px;line-height:2.2;color:var(--text-muted);">— 입력 후
+              표시됩니다 —</div>
+          </div>
         </div>
       </div>
     </div>
@@ -1570,25 +1763,74 @@
                 <button class="sb" id="fl-m-time" onclick="setFlMode('time')">도달 시간 계산</button>
               </div>
             </div>
-            <div class="fld"><label id="l-fv">배관 내부 용적 V (cm³)</label><input type="number" id="f-vol" value="50" min="1"
-                oninput="cFL()">
-              <p class="tip" id="tp-fv">흡착컵 + 배관 내부 용적의 합계</p>
+            <div class="fld"><label id="l-fv">배출 에어량</label>
+              <div class="rv-input-row">
+                <input type="number" id="f-vol" value="50" min="1" oninput="cFL()" style="width: calc(70% - 8px);">
+                <select id="f-vol-u" onchange="cFL()" style="width: 30%;">
+                  <option value="cm3">cm³</option>
+                  <option value="mm3">mm³</option>
+                  <option value="m3">m³</option>
+                  <option value="l">l</option>
+                  <option value="gal">gal</option>
+                  <option value="in3">in³</option>
+                  <option value="ft3">ft³</option>
+                </select>
+              </div>
+              <p class="tip" id="tp-fv">흡착컵 + 진공 용기 체적의 합계</p>
+            </div>
+            <div class="g2" style="margin-bottom:16px;">
+              <div class="fld" style="margin:0;"><label id="l-f-hid">배관 내경</label>
+                <div class="rv-input-row">
+                  <input type="number" id="f-hid" value="4" min="1" step="0.1" oninput="cFL()"
+                    style="width: calc(65% - 8px);">
+                  <select id="f-hid-u" onchange="cFL()" style="width: 35%;">
+                    <option value="mm">mm</option>
+                    <option value="inch">inch</option>
+                  </select>
+                </div>
+              </div>
+              <div class="fld" style="margin:0;"><label id="l-f-hlen">배관 길이</label>
+                <div class="rv-input-row">
+                  <input type="number" id="f-hlen" value="1" min="0" step="0.1" oninput="cFL()"
+                    style="width: calc(65% - 8px);">
+                  <select id="f-hlen-u" onchange="cFL()" style="width: 35%;">
+                    <option value="mm">mm</option>
+                    <option value="m" selected>m</option>
+                    <option value="inch">inch</option>
+                    <option value="ft">ft</option>
+                  </select>
+                </div>
+              </div>
             </div>
             <div class="fld">
               <label id="l-fvac">목표 진공압력</label>
               <div class="rv-input-row">
-                <input type="number" id="fvd-inp" value="-28" step="any" oninput="syncVacInp('f-vac','fvd-inp');cFL()"
-                  style="width: calc(50% - 8px);">
-                <div class="rv-display"><span id="fvd-disp-v">-28</span>&nbsp;<span id="fvd-disp-u">kPa</span></div>
+                <input type="number" id="fvd-inp" value="-60" step="any" oninput="syncVacInp('f-vac','fvd-inp');cFL()"
+                  style="width: calc(45% - 8px);">
+                <select id="f-vac-u" onchange="cFL()" style="width: 25%;">
+                  <option value="kPa">kPa</option>
+                  <option value="bar">bar</option>
+                  <option value="mbar">mbar</option>
+                  <option value="Pa">Pa</option>
+                  <option value="inHg">inHg</option>
+                  <option value="inH2O">inH₂O</option>
+                  <option value="mmHg">mmHg</option>
+                  <option value="pct">%</option>
+                  <option value="Torr">Torr</option>
+                </select>
+                <div class="rv-display" style="width: 30%;"><span id="fvd-disp-v">-60</span> <span
+                    id="fvd-disp-u">kPa</span></div>
               </div>
-              <input type="range" id="f-vac" min="1" max="29" value="9" step="any"
+              <input type="range" id="f-vac" min="1" max="29" value="19.33" step="any"
                 oninput="syncVacSld('f-vac','fvd-inp');cFL()">
               <div class="rl" id="frl">
                 <span></span><span></span><span></span>
               </div>
             </div>
-            <div class="fld" id="fld-ft"><label id="l-ft">목표 응답 시간 t (sec)</label><input type="number" id="f-time"
-                value="0.5" min="0.01" step="0.01" oninput="cFL()"></div>
+            <div class="fld" id="fld-ft"><label id="l-ft">목표 응답 시간 t (sec)</label>
+              <input type="number" id="f-time" value="0.5" min="0.01" step="0.01" oninput="cFL()">
+              <p class="tip" id="tp-f-time">※ 실무 권장: 목표 사이클 타임보다 10~20% 짧게 설정</p>
+            </div>
             <div class="fld" id="fld-fe" style="display:none;"><label id="l-fe">펌프/이젝터 도달 유량 (L/min)</label><input
                 type="number" id="f-ejq" value="20" min="0.1" step="any" oninput="cFL()"></div>
             <div class="fld"><label id="l-fl">누설 유량 Q_leak (L/min)</label><input type="number" id="f-leak" value="0"
@@ -1597,7 +1839,26 @@
             </div>
             <div class="fld"><label id="l-fn">흡착컵 수량</label><input type="number" id="f-cups" value="1" min="1"
                 oninput="cFL()"></div>
+            <div class="fld"><label id="l-f-sf">안전 계수 S (실무 여유율)</label>
+              <input type="number" id="f-fsf" value="1.5" min="1.0" max="5.0" step="0.1" oninput="cFL()">
+              <p class="tip" id="tp-f-sf">1.5~2.0 권장 (비선형성 및 배관 저항 고려)</p>
+            </div>
           </div>
+
+          <div class="card" style="border-left: 4px solid var(--accent2);">
+            <h2 class="st" style="font-size:13px; color:var(--accent2);" id="c11h-f">진공 시스템 설계 가이드</h2>
+            <div style="font-size:11.5px; line-height:1.8; color:var(--text-muted); margin-top:8px;">
+              <p id="f-gui-1">① 진공 도달의 비선형성: 목표 도달 직전 속도가 저하되므로 이론치 대비 1.5~2.0배의 여유를 권장합니다.</p>
+              <p id="f-gui-2" style="margin-top:6px;">② 배관 저항: 긴 호스, 엘보, 필터 등은 유량 손실을 유발하므로 더 큰 사양의 이젝터가 필요합니다.</p>
+              <p id="f-gui-3" style="margin-top:6px;">③ 누설량 감안: 통기성 워크나 틈새 예상 시 평균 유량에 누설 유량(Q_leak)을 합산하여 설계하십시오.</p>
+              <p id="f-gui-4" style="margin-top:6px;">④ 사이클 타임: 밸브 개폐 및 신호 지연 시간을 포함한 목표 시간(t)을 설정하는 것이 실무적입니다.</p>
+              <p id="f-gui-5" style="margin-top:6px; color:var(--warning);">⑤ 펌프 선정: 목표 진공도가 -80kPa 이상인 경우, 최대 성능이 그보다
+                높은 이젝터를 선정하십시오.</p>
+            </div>
+          </div>
+        </div>
+
+        <div>
           <div class="card">
             <h2 class="st" style="font-size:13px;" id="c9h">필요 이젝터 사양</h2>
             <div class="g2" style="margin-bottom:12px;">
@@ -1624,12 +1885,32 @@
                 <div class="ru">sec</div>
               </div>
             </div>
-            <div class="fb">Q<sub>avg</sub> = (V × P_vac) / (P_atm × t)<div class="fn" id="fb3n">V: 배관 용적 | P_vac: 목표
-                진공압 | t: 목표 시간</div>
+            <div class="fb" style="font-size:11px; line-height:1.6;">
+              <div style="margin-bottom:8px;">
+                <strong id="f-form-q">필요 유량 (Q):</strong> [ {(V<sub>work</sub>+V<sub>line</sub>) × n × Ratio} / t ] ×
+                S.F. +
+                (Q<sub>leak</sub> × n)
+              </div>
+              <div style="margin-bottom:8px;">
+                <strong id="f-form-t">도달 시간 (t):</strong> [ {(V<sub>work</sub>+V<sub>line</sub>) × n × Ratio} /
+                Q<sub>pump</sub> ] ×
+                S.F.
+              </div>
+              <div class="fn" id="fb3n" style="margin-top:6px; font-size:10px; opacity:0.8; word-break: keep-all;">
+                V_work: 용기 체적 | V_line: 배관 체적 | n: 수량 | P_vac: 목표 진공압 | P_atm: 대기압 | Ratio: 진공도 비율
+                (P<sub>vac</sub>/P<sub>atm</sub>) | t: 목표 시간 | S.F.: 안전율 | Q_leak: 누설 유량 | Q_pump: 펌프 유량
+              </div>
             </div>
           </div>
-        </div>
-        <div>
+
+          <div class="card">
+            <h2 class="st" style="font-size:13px;" id="c10h-f">상세 계산</h2>
+            <div id="f-calc-steps"
+              style="font-family:'Rajdhani', sans-serif; font-size:12px; line-height:1.6; color:var(--text-muted); padding:10px; background:var(--bg); border-radius:4px; border:1px solid var(--border); overflow-x:auto;">
+              계산 후 표시됩니다
+            </div>
+          </div>
+
           <div class="card">
             <h2 class="st" style="font-size:13px;" id="c10h">VMECA 이젝터 선정 가이드</h2>
             <table class="dt">
@@ -1656,18 +1937,7 @@
       <h2 class="st" id="t4h">단위 변환기</h2>
       <p class="subl" id="t4s">진공 자동화 업무에 필요한 메트릭 ↔ 임페리얼 단위를 빠르게 변환합니다.</p>
 
-      <style>
-        .uc-tabs {
-          display: flex;
-          gap: 24px;
-          align-items: flex-end;
-          margin-bottom: 24px;
-          border-bottom: 1px solid var(--border);
-          justify-content: flex-start;
-          padding-bottom: 0;
-        }
-      </style>
-      <div class="uc-tabs">
+      <div class="sub-tabs">
         <button class="tab active" id="dir-mi" onclick="setDir('mi',this)">METRIC → IMPERIAL</button>
         <button class="tab" id="dir-im" onclick="setDir('im',this)">IMPERIAL → METRIC</button>
       </div>
@@ -1911,7 +2181,8 @@
                     style="color:var(--imperial)">212°F</span>
                 </div>
               </div>
-              <p class="tip" style="margin-top:8px;" id="tp-temp">※ °F = °C × 9/5 + 32 &nbsp;|&nbsp; °C = (°F − 32) ×
+              <p class="tip" style="margin-top:8px;" id="tp-temp">※ °F = °C × 9/5 + 32 &nbsp;|&nbsp; °C = (°F − 32)
+                ×
                 5/9
               </p>
             </div>
@@ -1929,9 +2200,11 @@
               inHg</span></div>
           <div class="qref-row"><span class="qm">1 bar</span><span class="qeq">=</span><span class="qi">14.504
               PSI</span></div>
-          <div class="qref-row"><span class="qm">-60 kPa</span><span class="qeq">=</span><span class="qi">-8.70 PSI /
+          <div class="qref-row"><span class="qm">-60 kPa</span><span class="qeq">=</span><span class="qi">-8.70 PSI
+              /
               -17.72 inHg</span></div>
-          <div class="qref-row"><span class="qm">-80 kPa</span><span class="qeq">=</span><span class="qi">-11.60 PSI /
+          <div class="qref-row"><span class="qm">-80 kPa</span><span class="qeq">=</span><span class="qi">-11.60 PSI
+              /
               -23.62 inHg</span></div>
         </div>
         <div class="qref-card">
@@ -2098,15 +2371,18 @@
         <div>
           <div class="card">
             <h2 class="st" style="font-size:13px;" id="c13h">하중 케이스별 흡착력 공식</h2>
-            <p style="font-size:11px;color:var(--text-muted);margin-bottom:8px;font-family:'Rajdhani';" id="cas1">Case
+            <p style="font-size:11px;color:var(--text-muted);margin-bottom:8px;font-family:'Rajdhani';" id="cas1">
+              Case
               I: 수평 흡착 – 수직 이동만</p>
             <div class="fb">F = (W × (g + a) × S) / n<div class="fn" id="cf1">g=9.81 m/s², a=가속도, S=안전계수, n=컵수</div>
             </div>
-            <p style="font-size:11px;color:var(--text-muted);margin:12px 0 6px;font-family:'Rajdhani';" id="cas2">Case
+            <p style="font-size:11px;color:var(--text-muted);margin:12px 0 6px;font-family:'Rajdhani';" id="cas2">
+              Case
               II: 수평 흡착 – 수직 + 수평 이동</p>
             <div class="fb">F = S × √[(W×a/μ)² + (W×g)²] / n<div class="fn" id="cf2">μ=마찰계수</div>
             </div>
-            <p style="font-size:11px;color:var(--text-muted);margin:12px 0 6px;font-family:'Rajdhani';" id="cas3">Case
+            <p style="font-size:11px;color:var(--text-muted);margin:12px 0 6px;font-family:'Rajdhani';" id="cas3">
+              Case
               III: 수직 흡착 – 수직 방향 이동</p>
             <div class="fb">F = S × √[(W×g/μ)² + (W×a)²] / n</div>
           </div>
@@ -2362,7 +2638,8 @@
       <!-- 3. Positive Pressure Comparison Table -->
       <div class="card">
         <h2 class="st" style="font-size:13px;" id="c17h">양압 비교표 (Pressure Above Atmospheric)</h2>
-        <p class="tip" style="margin-bottom:10px;" id="tp-pos-tbl">※ 게이지 압력 기준 (0 = 대기압). 공압 액추에이터, 이젝터 공급압 등에 사용.</p>
+        <p class="tip" style="margin-bottom:10px;" id="tp-pos-tbl">※ 게이지 압력 기준 (0 = 대기압). 공압 액추에이터, 이젝터 공급압 등에 사용.
+        </p>
         <div style="overflow-x:auto;">
           <table class="dt" style="min-width:560px;">
             <thead>
@@ -2677,41 +2954,115 @@
             <div class="fld">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
                 <label style="margin:0;" id="el-hd-dir">계산 방향</label>
-                <div class="tgl">
-                  <button class="tgl-btn active" id="btn-hd-m2s" onclick="setHdDir('m2s')">Main → Sub</button>
-                  <button class="tgl-btn" id="btn-hd-s2m" onclick="setHdDir('s2m')">Sub → Main</button>
+                <div class="seg" style="margin-top:4px;">
+                  <button class="sb active" id="btn-hd-m2s" onclick="setHdDir('m2s')">Main → Sub</button>
+                  <button class="sb" id="btn-hd-s2m" onclick="setHdDir('s2m')">Sub → Main</button>
                 </div>
               </div>
             </div>
 
-            <div class="fld" id="fld-hd-main"><label id="el-hd-main">메인 배관 내경 (mm)</label><input type="number"
-                id="e-hd-main" value="12" step="any" oninput="cEng()"></div>
-            <div class="fld"><label id="el-hd-sub">서브 배관 내경 (mm)</label><input type="number" id="e-hd-sub" value="6"
-                step="any" oninput="cEng()"></div>
-            <div class="fld" id="fld-hd-qty" style="display:none;"><label id="el-hd-qty">서브 배관 수량 (개)</label><input
-                type="number" id="e-hd-qty" value="4" step="1" oninput="cEng()"></div>
+            <div class="fld" id="fld-hd-main">
+              <label id="el-hd-main">메인배관 사이즈</label>
+              <div style="display:flex; gap:6px;">
+                <input type="number" id="e-hd-main" value="12" step="any" oninput="cEng()" style="flex:1;">
+                <select id="e-hd-main-u" onchange="cEng()" style="width:70px; padding:4px; font-size:12px;">
+                  <option value="mm">mm</option>
+                  <option value="inch">inch</option>
+                </select>
+              </div>
+            </div>
+            <div class="fld" id="fld-hd-sub">
+              <label id="el-hd-sub">서브배관 사이즈</label>
+              <div style="display:flex; gap:6px;">
+                <input type="number" id="e-hd-sub" value="6" step="any" oninput="cEng()" style="flex:1;">
+                <select id="e-hd-sub-u" onchange="cEng()" style="width:70px; padding:4px; font-size:12px;">
+                  <option value="mm">mm</option>
+                  <option value="inch">inch</option>
+                </select>
+              </div>
+            </div>
+            <div class="fld" id="fld-hd-qty"><label id="el-hd-qty">서브 배관 수량 (개)</label><input type="number"
+                id="e-hd-qty" value="4" step="1" oninput="cEng()"></div>
 
             <div class="rb pri" style="margin-top:12px;">
-              <div class="rlb" id="er-hd-lbl">권장 서브 배관 최대 수량</div>
-              <div class="rv2" id="er-hd-val" style="color:var(--accent2);">4</div>
-              <div class="ru" id="ru-hd-val">개 (pcs)</div>
+              <div class="rlb" id="er-hd-lbl">추천 브랜치 호스 내경</div>
+              <div class="rv2" id="er-hd-val" style="color:var(--accent2);">—</div>
+              <div class="ru" id="ru-hd-val">mm</div>
             </div>
-            <p class="tip" style="margin-top:8px;" id="etp-hd">※ 단면적 비례 기준으로 분할 시 부족함 없는 호스 수량</p>
+
+            <!-- Rec. Table & Formula -->
+            <div class="fb" style="margin-top:12px; font-size:11px; line-height:1.6;">
+              <div style="margin-bottom:8px;">
+                <strong id="eh-hd-form-lbl">공식:</strong> D<sub>main</sub> = √(d<sub>br</sub>² × n) &nbsp;|&nbsp;
+                d<sub>br</sub> =
+                D<sub>main</sub> / √n
+              </div>
+              <div style="background: rgba(255,255,255,0.05); padding:8px; border-radius:4px;">
+                <div style="font-weight:bold; margin-bottom:4px; font-size:10px; color:var(--accent);"
+                  id="eh-hd-rec-ttl">
+                  실무 추천 규격 (메인 12mm 기준)</div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:4px; font-size:10px;">
+                  <div id="eh-hd-rec-i1">• 2분지: 8~9 mm</div>
+                  <div id="eh-hd-rec-i2">• 4분지: 6 mm</div>
+                  <div id="eh-hd-rec-i3">• 6~8분지: 4 mm</div>
+                </div>
+              </div>
+              <p class="tip" style="margin-top:8px;" id="etp-hd">※ 유체 역학 연속 방정식(단면적 합산법) 기준 최적 사이즈</p>
+            </div>
           </div>
 
           <!-- Orifice Flow -->
           <div class="card">
             <h2 class="st" style="font-size:13px;" id="eh-of">② 오리피스 유량 (Orifice Flow)</h2>
-            <div class="fld"><label id="el-of-dia">오리피스 직경 (mm)</label><input type="number" id="e-of-dia" value="1"
-                step="any" oninput="cEng()"></div>
-            <div class="fld"><label id="el-of-vac">진공 압력 (-kPa)</label><input type="number" id="e-of-vac" value="60"
-                step="any" oninput="cEng()"></div>
+            <div class="fld">
+              <label id="el-of-dia">오리피스 직경</label>
+              <div style="display:flex; gap:6px;">
+                <input type="number" id="e-of-dia" value="1" step="any" oninput="cEng()" style="flex:1;">
+                <select id="e-of-dia-u" onchange="cEng()" style="width:75px; padding:4px; font-size:12px;">
+                  <option value="mm">mm</option>
+                  <option value="inch">inch</option>
+                </select>
+              </div>
+            </div>
+            <div class="fld">
+              <label id="el-of-vac">진공 압력</label>
+              <div style="display:flex; gap:6px;">
+                <input type="number" id="e-of-vac" value="60" step="any" oninput="cEng()" style="flex:1;">
+                <select id="e-of-vac-u" onchange="cEng()" style="width:75px; padding:4px; font-size:12px;">
+                  <option value="kPa">kPa</option>
+                  <option value="bar">bar</option>
+                  <option value="mbar">mbar</option>
+                  <option value="Pa">Pa</option>
+                  <option value="inHg">inHg</option>
+                  <option value="inH2O">inH₂O</option>
+                  <option value="mmHg">mmHg</option>
+                  <option value="pct">%</option>
+                  <option value="Torr">Torr</option>
+                </select>
+              </div>
+            </div>
             <div class="rb" style="margin-top:12px; border-color:var(--warning);">
               <div class="rlb" id="er-of-lbl">예상 누설 유량</div>
               <div class="rv2" id="er-of-val" style="color:var(--warning);">—</div>
               <div class="ru" id="ru-of-val">L/min</div>
             </div>
             <p class="tip" style="margin-top:8px;" id="etp-of">※ 배관 내 진공도가 유지될 때 공기가 유입되는 대략적 유량</p>
+
+            <!-- Orifice Flow Detail Guide -->
+            <div class="fb" id="fb-of-guide"
+              style="margin-top:12px; font-size:11px; line-height:1.6; border-top: 1px dashed rgba(255,255,255,0.1); padding-top:12px;">
+              <div style="font-weight:bold; margin-bottom:6px; color:var(--accent);" id="eh-of-guide-ttl">오리피스 유량이란? (예상
+                누설량)</div>
+              <div style="background: rgba(255,255,255,0.03); padding:8px; border-radius:4px; margin-bottom:8px;">
+                <div id="eh-of-guide-desc" style="margin-bottom:6px;">진공 시스템의 미세 틈새나 다공성 워크를 통해 유입되는 공기량을 파악하여 실무 설계를 돕는
+                  지표입니다.</div>
+                <div id="eh-of-guide-form"><strong>공식:</strong> Q ≈ 0.12 × D² × √P</div>
+              </div>
+              <div style="font-size:10px; color:var(--accent2);" id="eh-of-guide-usage">
+                • <strong>이젝터 선정:</strong> 필요 유량에 누설 유량(Q_leak)을 합산하여 설계하십시오.<br>
+                • <strong>설계 최적화:</strong> 누설이 크면 이젝터 증설보다 배관 보수가 경제적입니다.
+              </div>
+            </div>
           </div>
         </div>
 
@@ -2723,21 +3074,87 @@
             <div class="fld">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
                 <label style="margin:0;" id="el-hdia-type">배관 종류</label>
-                <div class="tgl">
-                  <button class="tgl-btn active" id="btn-hdia-vac" onclick="setHdiaType('vac')">진공 (Vacuum)</button>
-                  <button class="tgl-btn" id="btn-hdia-air" onclick="setHdiaType('air')">압축공기 (Air)</button>
+                <div class="seg" style="margin-top:4px;">
+                  <button class="sb active" id="btn-hdia-vac" onclick="setHdiaType('vac')"
+                    style="flex:auto; min-width:100px; height:auto; padding:4px 15px; line-height:1.2; min-height:36px;">진공</button>
+                  <button class="sb" id="btn-hdia-air" onclick="setHdiaType('air')"
+                    style="flex:auto; min-width:100px; height:auto; padding:4px 15px; line-height:1.2; min-height:36px;">압축공기</button>
                 </div>
               </div>
             </div>
 
-            <div class="fld"><label id="el-hdia-flow">유량 (L/min)</label><input type="number" id="e-hdia-flow"
-                value="100" step="any" oninput="cEng()"></div>
-            <div class="fld"><label id="el-hdia-len">배관 길이 (m)</label><input type="number" id="e-hdia-len" value="2"
-                step="any" oninput="cEng()"></div>
-            <div class="fld" id="fld-hdia-pwork" style="display:none;"><label id="el-hdia-pwork">작업 압력 (Gauge
-                bar)</label><input type="number" id="e-hdia-pwork" value="6" step="any" oninput="cEng()"></div>
-            <div class="fld"><label id="el-hdia-drop">허용 압력 강하 (kPa)</label><input type="number" id="e-hdia-drop"
-                value="5" step="any" oninput="cEng()"></div>
+            <div class="fld">
+              <label id="el-hdia-base">산정 기준</label>
+              <div class="seg" style="margin-top:4px;">
+                <button class="sb active" id="btn-hdb-drop" onclick="setHdb('drop')">압력 강하</button>
+                <button class="sb" id="btn-hdb-velo" onclick="setHdb('velo')">유속</button>
+              </div>
+            </div>
+
+            <div class="fld">
+              <label id="el-hdia-flow">유량</label>
+              <div style="display:flex; gap:6px;">
+                <input type="number" id="e-hdia-flow" value="100" step="any" oninput="cEng()" style="flex:1;">
+                <select id="e-hdia-flow-u" onchange="cEng()" style="width:75px; padding:4px; font-size:12px;">
+                  <option value="lmin">L/min</option>
+                  <option value="scfm">scfm</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="fld">
+              <label id="el-hdia-len">배관 길이</label>
+              <div style="display:flex; gap:6px;">
+                <input type="number" id="e-hdia-len" value="2" step="any" oninput="cEng()" style="flex:1;">
+                <select id="e-hdia-len-u" onchange="cEng()" style="width:75px; padding:4px; font-size:12px;">
+                  <option value="m">m</option>
+                  <option value="cm">cm</option>
+                  <option value="mm">mm</option>
+                  <option value="inch">inch</option>
+                  <option value="ft">ft</option>
+                </select>
+              </div>
+            </div>
+            <!-- Shown in Pressure Drop Mode -->
+            <div id="fld-hd-drop-grp">
+              <div class="fld" id="fld-hdia-pwork" style="display:none;">
+                <label id="el-hdia-pwork">게이지 압력</label>
+                <div style="display:flex; gap:6px;">
+                  <input type="number" id="e-hdia-pwork" value="6" step="any" oninput="cEng()" style="flex:1;">
+                  <select id="e-hdia-pwork-u" onchange="cEng()" style="width:75px; padding:4px; font-size:12px;">
+                    <option value="bar">bar</option>
+                    <option value="psi">psi</option>
+                  </select>
+                </div>
+              </div>
+              <div class="fld">
+                <label id="el-hdia-drop">허용 압력 강하</label>
+                <div style="display:flex; gap:6px;">
+                  <input type="number" id="e-hdia-drop" value="5" step="any" oninput="cEng()" style="flex:1;">
+                  <select id="e-hdia-drop-u" onchange="cEng()" style="width:75px; padding:4px; font-size:12px;">
+                    <!-- Options populated dynamically by JS based on vacuum/air mode -->
+                    <option value="kPa">kPa</option>
+                    <option value="inHg">inHg</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Shown in Velocity Mode -->
+            <div id="fld-hd-velo-grp" style="display:none;">
+              <div class="fld">
+                <label id="el-hdia-velo">유속</label>
+                <div style="display:flex; gap:6px;">
+                  <input type="number" id="e-hdia-velo" value="11.8" step="any" oninput="cEng()" style="flex:1;">
+                  <select id="e-hdia-velo-u" onchange="cEng()" style="width:75px; padding:4px; font-size:12px;">
+                    <option value="ms">m/s</option>
+                    <option value="kmh">km/h</option>
+                    <option value="fts">ft/s</option>
+                    <option value="mph">mph</option>
+                  </select>
+                </div>
+              </div>
+            </div>
 
             <div class="rb" style="margin-top:12px; border-color:var(--success);">
               <div class="rlb" id="er-hdia-lbl">최소 권장 내경</div>
@@ -2745,6 +3162,49 @@
               <div class="ru" id="ru-hdia-val">mm</div>
             </div>
             <p class="tip" style="margin-top:8px;" id="etp-hdia">※ 배관 마찰 저항 (Darcy-Weisbach / 층류 근사치 기반 경험공식) 적용</p>
+
+            <!-- Hose Diameter Detail Guide (v9.0 Expanded) -->
+            <div class="fb" id="fb-hdia-guide"
+              style="margin-top:12px; font-size:11px; line-height:1.6; border-top: 1px dashed rgba(255,255,255,0.1); padding-top:12px;">
+              <div style="font-weight:bold; margin-bottom:8px; color:var(--accent);" id="eh-hdia-guide-ttl">배관 설계 및 압력
+                강하 가이드</div>
+
+              <div id="eh-hdia-guide-theory"
+                style="margin-bottom:12px; background:rgba(255,255,255,0.03); padding:8px; border-radius:4px;">
+                <strong style="color:var(--accent2);">[기초 이론: Darcy-Weisbach]</strong><br>
+                압력 강하(ΔP)는 유속의 제곱(v²)과 길이(L)에 비례하고, 내경의 5제곱(D⁵)에 반비례합니다.<br>
+                즉, <strong>내경을 조금만 키워도 압력 손실을 획기적으로 줄일 수 있습니다.</strong>
+              </div>
+
+              <div id="eh-hdia-guide-vac" style="margin-bottom:10px;">
+                <strong style="color:var(--accent2);">1. 진공측 설계 (Vacuum Side)</strong><br>
+                • <strong>특성:</strong> 밀도가 낮아 공기가 팽창하며 유속이 급증합니다.<br>
+                • <strong>권장 유속:</strong> 15~20m/s (응답 중시형은 10m/s)<br>
+                • <strong>허용 손실:</strong> 목표 진공도의 3~5% 이내 (약 3~5kPa)<br>
+                • <strong>실무:</strong> 계산치보다 1.5~2.0배 높게 안전율을 잡는 것이 정석입니다.
+              </div>
+
+              <div id="eh-hdia-guide-air" style="margin-bottom:10px;">
+                <strong style="color:var(--accent2);">2. 압축공기측 설계 (Supply Side)</strong><br>
+                • <strong>특성:</strong> 밀도가 높아 마찰 저항이 크며 성능에 직결됩니다.<br>
+                • <strong>권장 유속:</strong> 10~15m/s 이하<br>
+                • <strong>허용 손실:</strong> 공급 압력의 5% 이내 (약 0.1~0.3bar)<br>
+                • <strong>실무:</strong> 모든 이젝터가 동시 작동할 때의 총 소모량을 기준으로 하십시오.
+              </div>
+
+              <div id="eh-hdia-guide-table" style="margin:10px 0;">
+                <strong style="color:var(--accent2);">[실무용 에어 배관 선정 표 (10m 기준)]</strong><br>
+                • ~100 L/min: ID 4~5mm (6π)<br>
+                • 100~300 L/min: ID 6~8mm (8π/10π)<br>
+                • 300~600 L/min: ID 10~12mm (12π/14π)
+              </div>
+
+              <div style="font-size:10px; opacity:0.8; border-top:1px solid rgba(255,255,255,0.05); padding-top:6px;"
+                id="eh-hdia-guide-tip">
+                💡 <strong>전문가 팁:</strong> 배관 곡관(Elbow)이나 피팅은 직선 배관 수십 배의 저항을 유발하는 <strong>'등가 길이'</strong>를 가지므로, 실제
+                길이보다 여유 있게 내경을 선정하십시오.
+              </div>
+            </div>
           </div>
 
           <!-- Altitude Pressure -->
@@ -2752,6 +3212,18 @@
             <h2 class="st" style="font-size:13px;" id="eh-alt">④ 고도별 대기압 (Altitude Pressure)</h2>
             <div class="fld"><label id="el-alt-h">해발 고도 (m)</label><input type="number" id="e-alt-h" value="1000"
                 step="any" oninput="cEng()"></div>
+            <div class="fld" style="margin-top: 4px;">
+              <label id="el-alt-u">진공 압력 단위</label>
+              <select id="e-alt-u" onchange="cEng()">
+                <option value="kPa">kPa</option>
+                <option value="bar">bar</option>
+                <option value="mbar">mbar</option>
+                <option value="psi">psi</option>
+                <option value="inHg">inHg</option>
+                <option value="mmHg">mmHg</option>
+                <option value="Torr">Torr</option>
+              </select>
+            </div>
             <div class="rb" style="margin-top:12px;padding:16px;">
               <div class="rlb" id="er-alt-lbl">대기압 (절대압)</div>
               <div class="rv2" id="er-alt-val">—</div>
@@ -2762,7 +3234,8 @@
               <div class="rv2" id="er-alt-wv-val" style="color:var(--warning);">—</div>
               <div class="ru" id="ru-alt-wv-val">kPa</div>
             </div>
-            <p class="tip" style="margin-top:8px;" id="etp-alt">※ 멕시코시티(2,240m) 등 고지대에서 이젝터의 최대 진공 도달 한계치는 이 대기압을 넘을 수
+            <p class="tip" style="margin-top:8px;" id="etp-alt">※ 멕시코시티(2,240m) 등 고지대에서 이젝터의 최대 진공 도달 한계치는 이 대기압을 넘을
+              수
               없음. 우천/저기압 시 일반 대기압에서 약 5% 추가 감소.</p>
           </div>
         </div>
@@ -2888,7 +3361,8 @@
                 <div class="cbm-freight-unit">kg (Chargeable Wt.)</div>
               </div>
             </div>
-            <p class="tip" style="margin-top:10px;" id="cbm-tp-disc">※ 위 운임은 참고용 견적입니다. 실제 운임은 출발지/목적지, 시즌, 포워더 계약 조건에
+            <p class="tip" style="margin-top:10px;" id="cbm-tp-disc">※ 위 운임은 참고용 견적입니다. 실제 운임은 출발지/목적지, 시즌, 포워더 계약
+              조건에
               따라 다를 수 있습니다.</p>
           </div>
 
@@ -2918,9 +3392,8 @@
       <h2 class="st" id="t8h">투자 회수 (ROI) 계산기</h2>
       <p class="subl" id="t8s">핸들링 장비 및 자동화 시스템 도입에 따른 예상 투자 회수 기간을 계산합니다.</p>
 
-      <div class="tabs" style="margin-bottom: 24px; border-bottom: 1px solid var(--border);">
-        <button class="tab active" data-id="troi-m" onclick="swRoiTab('troi-m',this)" id="tbtn-roi-m">수동 핸들링
-          장비</button>
+      <div class="sub-tabs">
+        <button class="tab active" data-id="troi-m" onclick="swRoiTab('troi-m',this)" id="tbtn-roi-m">수동 핸들링 장비</button>
         <button class="tab" data-id="troi-a" onclick="swRoiTab('troi-a',this)" id="tbtn-roi-a">자동화 시스템</button>
       </div>
 
@@ -2934,8 +3407,8 @@
                   oninput="calcRoiM()"></div>
               <div class="fld"><label id="rl-m-hours">일일 근무 시간 (시간/일)</label><input type="number" id="r-m-hours"
                   value="8" oninput="calcRoiM()"></div>
-              <div class="fld"><label id="rl-m-cost">시간당 인건비 (₩/시간)</label><input type="number" id="r-m-cost"
-                  value="20000" oninput="calcRoiM()"></div>
+              <div class="fld"><label id="rl-m-cost">시간당 인건비 (₩/시간)</label><input type="text" inputmode="numeric"
+                  id="r-m-cost" value="20,000" oninput="fmtNum(this); calcRoiM()"></div>
               <div class="fld"><label id="rl-m-share">임금 중 인건비 비중 (%)</label><input type="number" id="r-m-share"
                   value="80" oninput="calcRoiM()">
                 <p class="tip" id="rtp-m-share">전체 임금 중 순수 인건비에 해당하는 백분율 (일반적으로 80~100%)</p>
@@ -2948,8 +3421,8 @@
                   oninput="calcRoiM()"></div>
               <div class="fld"><label id="rl-m-sick">병가 감소 예상일 (일/년)</label><input type="number" id="r-m-sick" value="5"
                   oninput="calcRoiM()"></div>
-              <div class="fld"><label id="rl-m-inv">진공 장비 투자 비용 (₩)</label><input type="number" id="r-m-inv"
-                  value="10000000" oninput="calcRoiM()"></div>
+              <div class="fld"><label id="rl-m-inv">진공 장비 투자 비용 (₩)</label><input type="text" inputmode="numeric"
+                  id="r-m-inv" value="10,000,000" oninput="fmtNum(this); calcRoiM()"></div>
             </div>
           </div>
           <div>
@@ -2973,8 +3446,8 @@
                 </div>
               </div>
               <div class="fb" style="border-left-color:var(--accent);">
-                총 연간 절감 이익 = 생산성 향상 이익 + 병가 감소 절감액<br>
-                <div class="fn">회수 기간(개월) = (투자 비용 / 총 연간 절감 이익) × 12</div>
+                <span id="rt-m-sum-formula">총 연간 절감 이익 = 생산성 향상 이익 + 병가 감소 절감액</span><br>
+                <div class="fn" id="rt-m-time-formula">회수 기간(개월) = (투자 비용 / 총 연간 절감 이익) × 12</div>
               </div>
             </div>
           </div>
@@ -2987,16 +3460,16 @@
           <div>
             <div class="card">
               <h2 class="st" style="font-size:13px;" id="rh-a1">① 자동화 요건 입력</h2>
-              <div class="fld"><label id="rl-a-cost">작업자 1인당 연간 인건비 (₩)</label><input type="number" id="r-a-cost"
-                  value="45000000" oninput="calcRoiA()"></div>
+              <div class="fld"><label id="rl-a-cost">작업자 1인당 연간 인건비 (₩)</label><input type="text" inputmode="numeric"
+                  id="r-a-cost" value="45,000,000" oninput="fmtNum(this); calcRoiA()"></div>
               <div class="fld"><label id="rl-a-emp">교대 당 자동화로 대체되는 인원 수</label><input type="number" id="r-a-emp"
                   value="2" oninput="calcRoiA()"></div>
               <div class="fld"><label id="rl-a-shift">일일 교대 근무 횟수</label><input type="number" id="r-a-shift" value="2"
                   oninput="calcRoiA()">
                 <p class="tip" id="rtp-a-shift">예: 2교대, 3교대</p>
               </div>
-              <div class="fld"><label id="rl-a-inv">자동화 장비 투자 비용 (₩)</label><input type="number" id="r-a-inv"
-                  value="150000000" oninput="calcRoiA()"></div>
+              <div class="fld"><label id="rl-a-inv">자동화 장비 투자 비용 (₩)</label><input type="text" inputmode="numeric"
+                  id="r-a-inv" value="150,000,000" oninput="fmtNum(this); calcRoiA()"></div>
             </div>
           </div>
           <div>
@@ -3013,8 +3486,8 @@
                 <div class="ru" id="ru-a-save">₩ / 년</div>
               </div>
               <div class="fb" style="border-left-color:var(--accent);">
-                총 절감액 = 교대 당 대체 인원 × 일일 교대 횟수 × 1인당 연간 인건비<br>
-                <div class="fn">회수 기간(개월) = (투자 비용 / 총 연간 절감액) × 12</div>
+                <span id="rt-a-sum-formula">총 절감액 = 교대 당 대체 인원 × 일일 교대 횟수 × 1인당 연간 인건비</span><br>
+                <div class="fn" id="rt-a-time-formula">회수 기간(개월) = (투자 비용 / 총 연간 절감액) × 12</div>
               </div>
             </div>
           </div>
@@ -3022,9 +3495,58 @@
       </div>
     </div> <!-- END ROI TAB -->
 
+    <!-- ======== TAB: SETTINGS ======== -->
+    <div id="tset" class="tp">
+      <h2 class="st" id="tset-h">⚙️ 설정</h2>
+      <p class="subl" id="tset-sub">앱 표시 방식 및 단위 시스템을 설정합니다.</p>
+      <div class="g2">
+        <!-- 테마 / Theme -->
+        <div class="card">
+          <h2 class="st" style="font-size:13px;" id="set-th-h">🌓 테마 (Theme)</h2>
+          <p style="font-size:13px; color:var(--text); margin-bottom:14px;" id="set-th-desc">화면의 밝기 모드를 선택합니다.</p>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <div class="tgl-group">
+              <button class="tgl-btn" id="th-dark" onclick="setTheme('dark')" title="Dark Mode">🌙 Dark</button>
+              <button class="tgl-btn a-metric" id="th-light" onclick="setTheme('light')" title="Light Mode">☀️
+                Light</button>
+            </div>
+          </div>
+        </div>
+        <!-- 언어 / Language -->
+        <div class="card">
+          <h2 class="st" style="font-size:13px;" id="set-lang-h">🌐 언어 (Language)</h2>
+          <p style="font-size:13px; color:var(--text); margin-bottom:14px;" id="set-lang-desc">인터페이스 언어를 선택합니다.
+          </p>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <div class="tgl-group">
+              <button class="tgl-btn a-metric" id="l-ko" onclick="setLang('ko')">한국어</button>
+              <button class="tgl-btn" id="l-en" onclick="setLang('en')">EN</button>
+            </div>
+          </div>
+        </div>
+        <!-- 단위 / Unit System -->
+        <div class="card">
+          <h2 class="st" style="font-size:13px;" id="set-unit-h">📐 단위 시스템 (Unit System)</h2>
+          <p style="font-size:13px; color:var(--text); margin-bottom:14px;" id="set-unit-desc">계산에 사용할 단위 시스템을
+            선택합니다.</p>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <div class="tgl-group">
+              <button class="tgl-btn a-metric" id="u-metric" onclick="setUnit('metric')">METRIC</button>
+              <button class="tgl-btn" id="u-imperial" onclick="setUnit('imperial')">IMPERIAL</button>
+            </div>
+            <div class="unit-pill metric" id="upill">SI · mm / kg / kPa / N</div>
+          </div>
+          <div class="fb" style="margin-top:16px;">
+            <p id="set-unit-tip" style="font-size:12px;">• Metric (SI): mm, cm², kPa, N, kg<br>• Imperial: inch, in²,
+              inHg, lbf, lb</p>
+          </div>
+        </div>
+      </div>
+    </div> <!-- END SETTINGS TAB -->
+
   </div>
 
-  <script src="./main.js"></script>
+  <script src="main.js?v=7.8"></script>
 </body>
 
 </html>
