@@ -21,7 +21,7 @@ let eHdb = 'drop'; // 'drop' or 'velo'
 const T = {
   ko: {
     'hdr-sub': '진공 계산기 v7.9',
-    'tab-tf': '흡착력 계산', 'tab-tc': '컵 선정', 'tab-tfl': '유량 계산', 'tab-tv': '단위 변환', 'tab-tr': '참고 데이터',
+    'tab-tf': '흡착력 계산', 'tab-tc': '컵 선정', 'tab-tfl': '펌프 선정', 'tab-tv': '단위 변환', 'tab-tr': '참고 데이터',
     'tab-troi': 'ROI 계산', 'tab-tcbm': 'CBM 계산', 'tab-teng': '엔지니어링', 'tab-tset': '⚙️ 설정',
     't1h': '이론 흡착력 계산', 't1s': '흡착컵의 이론 흡착력을 계산하고 안전 여부를 검토합니다.',
     't2h': '흡착컵 수량 및 사이즈 예측', 't2s': '워크피스 하중에 필요한 수량과 직경을 계산합니다.',
@@ -198,7 +198,7 @@ const T = {
   },
   en: {
     'hdr-sub': 'Vacuum Calculator v7.9',
-    'tab-tf': 'Force Calc', 'tab-tc': 'Cup Select', 'tab-tfl': 'Flow Calc', 'tab-tv': 'Unit Convert', 'tab-tr': 'Reference',
+    'tab-tf': 'Force Calc', 'tab-tc': 'Cup Select', 'tab-tfl': 'Pump Select', 'tab-tv': 'Unit Convert', 'tab-tr': 'Reference',
     'tab-troi': 'ROI Calc', 'tab-tcbm': 'CBM Calc', 'tab-teng': 'Engineering', 'tab-tset': '⚙️ Settings',
     't1h': 'Theoretical Suction Force', 't1s': 'Calculate theoretical suction force and verify safety margin.',
     // Settings Tab
