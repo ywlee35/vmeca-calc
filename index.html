@@ -85,6 +85,7 @@
       top: 0;
       z-index: 100;
       backdrop-filter: blur(10px);
+      overflow: visible;
     }
 
     .hdr-row {
@@ -519,12 +520,6 @@
     @media(max-width:480px) {
       .logo {
         font-size: 18px;
-      }
-
-      .tab {
-        font-size: 10px;
-        padding: 8px 8px;
-        letter-spacing: 0;
       }
     }
 
@@ -1340,6 +1335,115 @@
       font-weight: 700;
       vertical-align: middle;
     }
+
+    /* ── 햄버거 메뉴 버튼 ── */
+    .hamburger-btn {
+      display: none;
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 4px;
+      color: rgba(255, 255, 255, 0.9);
+      cursor: pointer;
+      min-width: 44px;
+      min-height: 44px;
+      font-size: 20px;
+      line-height: 1;
+      align-items: center;
+      justify-content: center;
+      padding: 0 10px;
+      transition: background .2s, border-color .2s;
+      flex-shrink: 0;
+    }
+
+    .hamburger-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: var(--accent2);
+      color: var(--accent2);
+    }
+
+    .active-tab-lbl {
+      display: none;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.9);
+      letter-spacing: 1px;
+      flex: 1;
+      text-align: center;
+    }
+
+    /* ── 모바일 반응형 (< 768px) ── */
+    @media (max-width: 768px) {
+      .hamburger-btn {
+        display: flex;
+      }
+
+      .active-tab-lbl {
+        display: block;
+      }
+
+      /* 탭바 → 세로 드롭다운으로 변환 */
+      .tabs {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: linear-gradient(135deg, #0d1b2e 0%, #0a1628 100%);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        border-bottom: 2px solid var(--accent);
+        z-index: 200;
+        padding: 0;
+        gap: 0;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, .5);
+      }
+
+      .tabs.open {
+        display: flex;
+      }
+
+      .tab {
+        font-size: 14px !important;
+        padding: 14px 20px !important;
+        min-height: 44px;
+        letter-spacing: 1px !important;
+        text-align: left;
+        border-bottom: 1px solid var(--border) !important;
+        border-left: 3px solid transparent;
+        white-space: normal;
+      }
+
+      .tab.active {
+        border-left-color: var(--accent2) !important;
+        border-bottom-color: var(--border) !important;
+        padding-left: 17px !important;
+      }
+
+      /* 입력 폼 최소 폰트 보장 */
+      label {
+        font-size: 11px;
+      }
+
+      input[type="number"],
+      input[type="text"],
+      select {
+        font-size: 15px;
+        padding: 10px 12px;
+        min-height: 44px;
+      }
+
+      .tgl-btn {
+        font-size: 13px;
+        padding: 7px 14px;
+        min-height: 36px;
+      }
+
+      .sb {
+        min-height: 40px;
+        font-size: 13px;
+      }
+    }
   </style>
 </head>
 
@@ -1360,6 +1464,8 @@
     <!-- 상단 로고 행 -->
     <div class="hdr-row">
       <div class="logo">VMECA<span id="hdr-sub">진공 계산기 v7.5</span></div>
+      <span class="active-tab-lbl" id="active-tab-lbl">흡착력 계산</span>
+      <button class="hamburger-btn" id="hamburger-btn" onclick="toggleMenu()" aria-label="메뉴 열기">☰</button>
     </div>
     <!-- 탭 내비게이션 행 -->
     <div class="tabs" id="mtabs">
@@ -3256,9 +3362,9 @@
             <div class="fld" style="margin-bottom:16px;">
               <label id="cbm-unit-lbl">치수 단위</label>
               <div class="seg" style="margin-top:4px;">
-                <button class="sb active" id="cbm-u-cm" onclick="setCbmUnit('cm')">cm</button>
+                <button class="sb" id="cbm-u-cm" onclick="setCbmUnit('cm')">cm</button>
                 <button class="sb" id="cbm-u-mm" onclick="setCbmUnit('mm')">mm</button>
-                <button class="sb" id="cbm-u-in" onclick="setCbmUnit('in')">inch</button>
+                <button class="sb active" id="cbm-u-in" onclick="setCbmUnit('in')">inch</button>
                 <button class="sb" id="cbm-u-ft" onclick="setCbmUnit('ft')">ft</button>
               </div>
             </div>
@@ -3546,7 +3652,19 @@
 
   </div>
 
-  <script src="main.js?v=7.8"></script>
+  <script src="main.js?v=7.9"></script>
+  <script>
+    // 외부 클릭 시 햄버거 메뉴 닫기
+    document.addEventListener('click', function (ev) {
+      const mtabs = document.getElementById('mtabs');
+      const hbtn = document.getElementById('hamburger-btn');
+      if (!mtabs || !hbtn) return;
+      if (!mtabs.contains(ev.target) && !hbtn.contains(ev.target)) {
+        mtabs.classList.remove('open');
+        hbtn.textContent = '☰';
+      }
+    });
+  </script>
 </body>
 
 </html>

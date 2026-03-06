@@ -648,10 +648,29 @@ function updateSliderDisplays() {
 // TAB SWITCH
 // ============================================================
 function swTab(id, btn) {
+  // 모바일 햄버거 메뉴 닫기
+  const mtabs = e('mtabs');
+  if (mtabs) mtabs.classList.remove('open');
+  const hbtn = e('hamburger-btn');
+  if (hbtn) hbtn.textContent = '☰';
+  // 현재 탭명 레이블 업데이트
+  const lbl = e('active-tab-lbl');
+  if (lbl) lbl.textContent = btn.textContent.replace(/\n/g, '').trim();
+
   document.querySelectorAll('.tp').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('#mtabs .tab').forEach(t => t.classList.remove('active'));
   e(id).classList.add('active');
   btn.classList.add('active');
+}
+
+// 대저 JS 메뉴 토글
+function toggleMenu() {
+  const mtabs = e('mtabs');
+  const hbtn = e('hamburger-btn');
+  if (!mtabs || !hbtn) return;
+  const isOpen = mtabs.classList.toggle('open');
+  hbtn.textContent = isOpen ? '✕' : '☰';
+  hbtn.setAttribute('aria-label', isOpen ? '메뉴 닫기' : '메뉴 열기');
 }
 
 // ============================================================
@@ -1095,7 +1114,30 @@ function cFL() {
   e('f-calc-steps').innerHTML = st;
 
   const ejs = [
-    { m: 'VME-07', f: 3 }, { m: 'VME-10', f: 8 }, { m: 'VME-15', f: 15 }, { m: 'VME-20', f: 28 }, { m: 'VME-30', f: 55 }, { m: 'VML-07', f: 6 }, { m: 'VML-10', f: 16 }
+    { "m": "MC102", "f": 16.5 }, { "m": "VTM5", "f": 37.0 }, { "m": "VTM10", "f": 74.0 }, { "m": "VTM20", "f": 149.0 }, { "m": "VTM30", "f": 220.0 },
+    { "m": "VTX5", "f": 32.0 }, { "m": "VTX10", "f": 62.0 }, { "m": "VTX20", "f": 124.0 }, { "m": "VTX30", "f": 185.0 }, { "m": "VKM61", "f": 37.0 },
+    { "m": "VKM62", "f": 74.0 }, { "m": "VKX61", "f": 31.0 }, { "m": "VKX62", "f": 62.0 }, { "m": "VKX73", "f": 94.0 }, { "m": "VKX74", "f": 109.0 },
+    { "m": "VKM73", "f": 111.0 }, { "m": "VKM74", "f": 135.0 }, { "m": "GS203F", "f": 85.8 }, { "m": "GS252", "f": 113.0 }, { "m": "GS253F", "f": 146.0 },
+    { "m": "GS302", "f": 171.0 }, { "m": "GSL302", "f": 200.0 }, { "m": "GH203F", "f": 172.0 }, { "m": "GH252", "f": 222.0 }, { "m": "GH253F", "f": 292.0 },
+    { "m": "GH302", "f": 343.0 }, { "m": "GHL302", "f": 400.0 }, { "m": "VD302", "f": 171.0 }, { "m": "VD303", "f": 341.0 }, { "m": "VDL302", "f": 200.0 },
+    { "m": "VDL303", "f": 362.0 }, { "m": "VTC3021", "f": 171.0 }, { "m": "VTC3031", "f": 341.0 }, { "m": "VTCL3021", "f": 200.0 }, { "m": "VTCL3031", "f": 362.0 },
+    { "m": "VTC3022", "f": 342.0 }, { "m": "VTC3032", "f": 682.0 }, { "m": "VTCL3022", "f": 400.0 }, { "m": "VTCL3032", "f": 724.0 }, { "m": "VTC3122", "f": 342.0 },
+    { "m": "VTC3123", "f": 513.0 }, { "m": "VTC3124", "f": 684.0 }, { "m": "VTC3132", "f": 682.0 }, { "m": "VTC3133", "f": 1023.0 }, { "m": "VTC3134", "f": 1364.0 },
+    { "m": "VTCL3122", "f": 400.0 }, { "m": "VTCL3123", "f": 600.0 }, { "m": "VTCL3124", "f": 800.0 }, { "m": "VTCL3132", "f": 724.0 }, { "m": "VTCL3133", "f": 1086.0 },
+    { "m": "VTCL3134", "f": 1448.0 }, { "m": "M3122", "f": 342.0 }, { "m": "M3123", "f": 513.0 }, { "m": "M3124", "f": 684.0 }, { "m": "ML3122", "f": 362.0 },
+    { "m": "ML3123", "f": 600.0 }, { "m": "ML3124", "f": 800.0 }, { "m": "M3132", "f": 682.0 }, { "m": "M3133", "f": 1023.0 }, { "m": "M3134", "f": 1364.0 },
+    { "m": "ML3132", "f": 724.0 }, { "m": "ML3133", "f": 1086.0 }, { "m": "ML3134", "f": 1448.0 }, { "m": "PM303X1", "f": 341.0 }, { "m": "PM303X2", "f": 682.0 },
+    { "m": "PM303X3", "f": 1023.0 }, { "m": "PM303X4", "f": 1364.0 }, { "m": "PML303X1", "f": 362.0 }, { "m": "PML303X2", "f": 724.0 }, { "m": "PML303X3", "f": 1086.0 },
+    { "m": "PML303X4", "f": 1448.0 }, { "m": "MPM303x6", "f": 2048.0 }, { "m": "MPM303x8", "f": 2728.0 }, { "m": "MPM303x10", "f": 3410.0 }, { "m": "MPM303x12", "f": 4092.0 },
+    { "m": "MPM303x14", "f": 4774.0 }, { "m": "MPM303x16", "f": 5456.0 }, { "m": "MPML303x6", "f": 2172.0 }, { "m": "MPML303x8", "f": 2896.0 }, { "m": "MPML303x10", "f": 3620.0 },
+    { "m": "MPML303x12", "f": 4344.0 }, { "m": "MPML303x14", "f": 5068.0 }, { "m": "MPML303x16", "f": 5792.0 }, { "m": "ML200", "f": 2410.0 }, { "m": "ML400", "f": 4820.0 },
+    { "m": "ML600", "f": 7230.0 }, { "m": "ML800", "f": 9640.0 }, { "m": "ML1000", "f": 12050.0 }, { "m": "ML1200", "f": 14460.0 }, { "m": "VCML100", "f": 1384.0 },
+    { "m": "VCML200", "f": 2728.0 }, { "m": "VCML400", "f": 5456.0 }, { "m": "VCML100L", "f": 1448.0 }, { "m": "VCML200L", "f": 2896.0 }, { "m": "VCML400L", "f": 5792.0 },
+    { "m": "VCS102", "f": 16.5 }, { "m": "VCS202", "f": 41.3 }, { "m": "VSM202", "f": 44.0 }, { "m": "VSM203", "f": 84.5 }, { "m": "VSM302", "f": 171.0 },
+    { "m": "VSM303", "f": 341.0 }, { "m": "VSMR202", "f": 42.0 }, { "m": "VSMR203", "f": 84.5 }, { "m": "VQ202", "f": 44.0 }, { "m": "VQ203", "f": 84.5 },
+    { "m": "SC202", "f": 44.0 }, { "m": "SC203", "f": 84.5 }, { "m": "VTRA250", "f": 283.0 }, { "m": "VTRA375", "f": 849.0 }, { "m": "VTRA500", "f": 1698.0 },
+    { "m": "VTRA750", "f": 3396.0 }, { "m": "VTRF2-3", "f": 283.0 }, { "m": "VTRF3-3", "f": 424.0 }, { "m": "VTRF6-6", "f": 849.0 }, { "m": "VTRF7-6", "f": 1698.0 },
+    { "m": "VTRF15-3", "f": 4670.0 }, { "m": "VTRF15-6", "f": 5660.0 }
   ];
   let html = '';
   ejs.forEach(ej => {
@@ -1247,9 +1289,9 @@ function doConv() {
 // ============================================================
 // CBM CALCULATOR
 // ============================================================
-let cbmUnit = 'cm';  // cm | mm | in | ft
+let cbmUnit = 'in';  // cm | mm | in | ft
 let cbmItems = [
-  { name: '', l: 60, w: 40, h: 30, qty: 1, wt: 5 }
+  { name: '', l: 19, w: 14, h: 14, qty: 1, wt: 5 }
 ];
 
 const CONTAINERS = [
@@ -1277,7 +1319,7 @@ function setCbmUnit(u) {
 }
 
 function addCbmItem() {
-  cbmItems.push({ name: '', l: 60, w: 40, h: 30, qty: 1, wt: 5 });
+  cbmItems.push({ name: '', l: 19, w: 14, h: 14, qty: 1, wt: 5 });
   renderCbmItems();
   calcCbm();
 }
