@@ -1467,6 +1467,26 @@
         font-size: 13px;
       }
     }
+
+    /* ── 아주 좁은 모바일 (Galaxy S22 등 폭 360px 이하) 보정 ── */
+    @media (max-width: 400px) {
+      .container {
+        padding: 10px 6px;
+      }
+      .card {
+        padding: 14px 10px;
+      }
+      .cbm-dim-inp input {
+        min-width: 0;
+      }
+      .cbm-freight-grid {
+        grid-template-columns: 1fr;
+      }
+      /* .rv-input-row 내 select가 너무 크지 않도록 강제 제한 */
+      .rv-input-row > select {
+        max-width: 90px;
+      }
+    }
   </style>
 </head>
 
